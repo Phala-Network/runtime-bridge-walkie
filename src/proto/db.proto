@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package prb.db;
+
+import "utils.proto";
+
+message ParentBlock {
+  uint32 number = 1;
+  bytes hash = 2; // BlockHash
+  bytes header = 3; // Header
+  uint32 set_id = 4;
+  bool has_justification = 5;
+  bytes sync_header_data = 6; // HeaderToSync
+  bytes authority_set_change = 7; // Option<AuthoritySetChange>
+  uint32 para_number = 8;
+  bytes para_proof = 9;
+}
+
+message ParaBlock {
+  uint32 number = 1;
+  bytes hash = 2; // BlockHash
+  bytes header = 3; // Header
+  bytes dispatch_block_data = 5; // BlockHeaderWithChanges
+}
+
+message Genesis {
+  uint32 para_id = 1;
+  uint32 para_number = 2;
+  uint32 parent_number = 3;
+  bytes bridge_genesis_info = 4;
+  bytes genesis_state = 5;
+}
+
+message Window {
+  int32 parent_start_block = 1;
+  int32 parent_stop_block = 2;
+  int32 para_start_block = 3;
+  int32 para_stop_block = 4;
+  int32 window_id = 5;
+  int32 set_id = 6;
+  bool is_finished = 7;
+}
+
+message RangeMeta {
+  uint32 parent_start_block = 1;
+  uint32 parent_stop_block = 2;
+  int32 para_start_block = 3;
+  int32 para_stop_block = 4;
+  repeated uint32 parent_range = 5;
+  repeated uint32 para_range = 6;
+  string dry_sync_header_req_key = 7;
+  int32 latest_set_id = 8;
+  uint32 blob_parent_stop_block = 9;
+  int32 blob_para_stop_block = 10;
+  string blob_sync_header_req_key = 11;
+}
+
+message Pool {
+  string uuid = 1;
+  FullAccount owner = 2;
+  uint64 pid = 3; // Pool ID
+  string name = 4;
+  bool enabled = 5;
+  bool deleted = 6;
+  string real_phala_ss58 = 7;
+}
+
+message Worker {
+  string uuid = 1;
+  uint64 pid = 2; // Pool ID
+  string name = 3;
+  string endpoint = 4; // HTTP endpoint to pRuntime
+  bool enabled = 5;
+  bool deleted = 6;
+  string stake = 7; // BalanceOf in BN string
+}

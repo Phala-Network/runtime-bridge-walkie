@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package prb;
+
+import "worker.proto";
+import "db.proto";
+
+message LifecycleManagerStateUpdate {
+  string hostname = 1;
+  // following metadata are full-update, DO BUILD YOUR OWN worker index locally!
+  repeated db.Pool pools = 2;
+  repeated db.Worker workers = 3;
+}
+
+message CallOnlineLifecycleManager {
+  bool is_response = 1;
+  string hostname = 2;
+}
+
+message LifecycleActionRequest {
+  PoolOrWorkerQueryIdentity id = 1;
+  string reason = 2; // currently not saved to audit logs
+}
+
+message RequestStartWorkerLifecycle {
+  repeated LifecycleActionRequest requests = 1;
+}
+
+message RequestKickWorker {
+  repeated LifecycleActionRequest requests = 1;
+}

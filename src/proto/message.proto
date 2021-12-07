@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package prb;
+
+import "utils.proto";
+import "error.proto";
+import "db.proto";
+import "data-provider.proto";
+import "lifecycle.proto";
+import "worker.proto";
+
+enum WalkieRoles {
+  CLIENT = 0;
+  DATA_PROVIDER = 1;
+  LIFECYCLE_MANAGER = 2;
+  TRADER = 3;
+}
+
+message WalkieSystemInfo {
+  string hostname = 1;
+  string peer_id = 2;
+  WalkieRoles role = 3;
+}
+
+message WalkieRpcRequestWrapper {
+  uint64 created_at = 1;
+  string nonce = 2;
+  bytes data = 3;
+  string method = 4;
+  string ns = 5;
+}
+
+message WalkieRpcResponseWrapper {
+  uint64 created_at = 1;
+  string request_nonce = 2;
+  string nonce = 3;
+  bytes data = 4;
+  bool has_error = 5;
+}
+
+message WalkieBroadcastWrapper {
+  uint64 created_at = 1;
+  string nonce = 2;
+  bytes data = 3;
+  string method = 4;
+  string ns = 5;
+}
+
+service WalkieRpc {
+  // shared
+  rpc GetSystemInfo(Empty) returns (WalkieSystemInfo);
+
+  // data_provider
+  rpc GetDataProviderInfo(Empty) returns (data_provider.Info);
+  // data_provider: internal
+  rpc GetBlobByKey(data_provider.GetBlobByKey) returns (data_provider.RawBlob);
+  rpc ListPool(Empty) returns (data_provider.PoolList);
+  rpc CreatePool(data_provider.CreatePool) returns (data_provider.PoolList);
+  rpc UpdatePool(data_provider.UpdatePool) returns (data_provider.PoolList);
+  rpc ListWorker(Empty) returns (data_provider.WorkerList);
+  rpc CreateWorker(data_provider.CreateWorker) returns (data_provider.WorkerList);
+  rpc UpdateWorker(data_provider.UpdateWorker) returns (data_provider.WorkerList);
+  // data_provider: external
+  rpc WantBlob(data_provider.WantBlob) returns (data_provider.BlobMeta);
+  rpc GetBlobWithToken(data_provider.GetBlob) returns (data_provider.Blob);
+
+  // lifecycle_manager
+
+  // trader
+}
+
+service WalkieBroadcast {}

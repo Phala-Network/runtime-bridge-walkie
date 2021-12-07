@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package prb;
+
+message Empty {}
+
+message Placeholder {}
+
+message Ack {
+  bool ack = 1;
+}
+
+message BN {
+  string value = 1;
+}
+
+message FullAccount {
+  string mnemonic = 1;
+  // mnemonic acts only as an input when creating/updating pool,
+  // only data below will be saved.
+  string polkadot_json = 2;
+  string ss58_phala = 3;
+  string ss58_polkadot = 4;
+}
+
+message Account {
+  string ss58_phala = 1;
+  string ss58_polkadot = 2;
+}
+

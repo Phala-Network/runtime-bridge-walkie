@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package prb;
+
+message GenericError {
+  string code = 1;
+  string desc = 2;
+}
+
+message NotFoundError {
+  string desc = 1;
+}
+
+message DuplicatedError {
+  string desc = 1;
+}
+
+message Error {
+  string extra = 1;
+  oneof error {
+    GenericError generic = 2;
+    NotFoundError not_found = 3;
+    DuplicatedError duplicated = 4;
+  }
+}

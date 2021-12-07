@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package prb;
+
+import "db.proto";
+
+message WorkerState {
+  enum Status {
+    S_IDLE = 0;
+    S_STARTING = 1;
+    S_SYNCHING = 2;
+    S_SYNCHED = 3;
+    S_PRE_MINING = 4;
+    S_MINING = 5;
+    S_KICKED = 6;
+    S_ERROR = 7;
+  }
+  Status status = 1;
+  int32 parent_header_synched_to = 2;
+  int32 para_header_synched_to = 3;
+  int32 para_block_dispatched_to = 4;
+  bool initialized = 5;
+  db.Worker worker = 6;
+  string public_key = 8;
+  string last_message = 9;
+  string miner_info_json = 10;
+  string miner_account_id = 11;
+}
+
+message PoolOrWorkerQueryIdentity {
+  oneof identity {
+    string uuid = 1;
+    string name = 2;
+    uint64 pid = 3; // only for pool
+  }
+}
+
+message QueryWorkerState {
+  repeated PoolOrWorkerQueryIdentity ids = 1;
+}
+
+message WorkerStateUpdate {
+  repeated WorkerState worker_states = 1;
+}

@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package prb.data_provider;
+
+import "worker.proto";
+import "db.proto";
+
+enum Status {
+  S_UNKNOWN = 0;
+  S_IDLE = 1;
+  S_BUSY = 2;
+  S_ORPHAN = 3;
+}
+
+enum BlobType {
+  BT_UNKNOWN = 0;
+  BT_PARENT_BLOCK = 1;
+  BT_PARA_BLOCK = 2;
+}
+
+message Info {
+  Status status = 1;
+  int32 para_id = 2;
+
+  int32 parent_start_header = 3;
+
+  int32 parent_known_eight = 4;
+  int32 parent_blob_eight = 5;
+  int32 parent_archived_eight = 6;
+
+  int32 para_known_eight = 7;
+  int32 para_blob_eight = 8;
+  int32 para_archived_eight = 9;
+
+  bool synched = 10;
+}
+
+message WantBlob {
+  uint32 number = 1;
+  BlobType type = 2;
+}
+
+message BlobMeta {
+  uint32 number = 1;
+  bytes hash = 2;
+  string origin_peer = 3;
+  BlobType type = 4;
+  string get_token = 5;
+  uint64 token_expires_at = 6;
+}
+
+message GetBlob {
+  string token = 1;
+}
+
+message Blob {
+  BlobType type = 1;
+  uint32 number = 2;
+  bytes data = 3;
+}
+
+message GetBlobByKey {
+  string key = 1;
+}
+
+message RawBlob {
+  string key = 1;
+  bool empty = 2;
+  bytes data = 3;
+}
+
+message CreatePool {
+  // explicitly setting uuid will be ignored.
+  repeated db.Pool pools = 1;
+}
+
+message UpdatePool {
+  message Item {
+    PoolOrWorkerQueryIdentity id = 1;
+    // full value needed.
+    // to delete, set `deleted` to true.
+    // changes to `uuid` will be ignored.
+    db.Pool pool = 2;
+  }
+  repeated Item items = 1;
+}
+
+message CreateWorker {
+  // explicitly setting uuid will be ignored.
+  repeated db.Worker workers = 1;
+}
+
+message UpdateWorker {
+  message Item {
+    PoolOrWorkerQueryIdentity id = 1;
+    // full value needed.
+    // to delete, set `deleted` to true.
+    // changes to `uuid` will be ignored.
+    db.Worker worker = 2;
+  }
+  repeated Item items = 1;
+}
+
+message PoolList {
+  repeated db.Pool pools = 1;
+}
+
+message WorkerList {
+  repeated db.Worker workers = 1;
+}
+
