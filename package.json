@@ -2,9 +2,11 @@
   "name": "@phala/runtime-bridge-walkie",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "types": "src/index.ts",
   "type": "module",
   "license": "MIT",
   "dependencies": {
+    "@chainsafe/libp2p-noise": "^5.0.0",
     "bn.js": "^5.2.0",
     "bunyan": "^1.8.15",
     "libp2p": "^0.35.0",
@@ -54,7 +56,6 @@
   },
   "scripts": {
     "watch-ts": "tsc -w",
-    "proto:build": "pbjs -t static-module --no-beautify -p ./src/proto -o ./src/proto.generated/index.js -w es6 ./src/proto/message.proto && pbts -o ./src/proto.generated/index.d.ts ./src/proto.generated/index.js && sed -i \"s/import \\* as $protobuf/import $protobuf/g\" ./src/proto.generated/index.js",
-    "proto:darwin:build": "pbjs -t static-module --no-beautify -p ./src/proto -o ./src/proto.generated/index.js -w es6 ./src/proto/message.proto && pbts -o ./src/proto.generated/index.d.ts ./src/proto.generated/index.js && gsed -i \"s/import \\* as $protobuf/import $protobuf/g\" ./src/proto.generated/index.js"
+    "proto:build": "bash build_proto.sh"
   }
 }
