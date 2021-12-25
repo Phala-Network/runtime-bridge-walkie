@@ -11,10 +11,11 @@ export const prb = $root.prb = (() => {
 
     prb.WalkieRoles = (function() {
         const valuesById = {}, values = Object.create(valuesById);
-        values[valuesById[0] = "CLIENT"] = 0;
-        values[valuesById[1] = "DATA_PROVIDER"] = 1;
-        values[valuesById[2] = "LIFECYCLE_MANAGER"] = 2;
-        values[valuesById[3] = "TRADER"] = 3;
+        values[valuesById[0] = "WR_CLIENT"] = 0;
+        values[valuesById[1] = "WR_DATA_PROVIDER_INT"] = 1;
+        values[valuesById[2] = "WR_DATA_PROVIDER_EXT"] = 2;
+        values[valuesById[3] = "WR_LIFECYCLE_MANAGER"] = 3;
+        values[valuesById[4] = "WR_TRADER"] = 4;
         return values;
     })();
 
@@ -30,6 +31,8 @@ export const prb = $root.prb = (() => {
         WalkieSystemInfo.prototype.hostname = "";
         WalkieSystemInfo.prototype.peerId = "";
         WalkieSystemInfo.prototype.role = 0;
+        WalkieSystemInfo.prototype.chainIdentity = "";
+        WalkieSystemInfo.prototype.bridgeIdentity = "";
 
         WalkieSystemInfo.create = function create(properties) {
             return new WalkieSystemInfo(properties);
@@ -44,6 +47,10 @@ export const prb = $root.prb = (() => {
                 writer.uint32(18).string(message.peerId);
             if (message.role != null && Object.hasOwnProperty.call(message, "role"))
                 writer.uint32(24).int32(message.role);
+            if (message.chainIdentity != null && Object.hasOwnProperty.call(message, "chainIdentity"))
+                writer.uint32(34).string(message.chainIdentity);
+            if (message.bridgeIdentity != null && Object.hasOwnProperty.call(message, "bridgeIdentity"))
+                writer.uint32(42).string(message.bridgeIdentity);
             return writer;
         };
 
@@ -66,6 +73,12 @@ export const prb = $root.prb = (() => {
                     break;
                 case 3:
                     message.role = reader.int32();
+                    break;
+                case 4:
+                    message.chainIdentity = reader.string();
+                    break;
+                case 5:
+                    message.bridgeIdentity = reader.string();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -98,8 +111,15 @@ export const prb = $root.prb = (() => {
                 case 1:
                 case 2:
                 case 3:
+                case 4:
                     break;
                 }
+            if (message.chainIdentity != null && message.hasOwnProperty("chainIdentity"))
+                if (!$util.isString(message.chainIdentity))
+                    return "chainIdentity: string expected";
+            if (message.bridgeIdentity != null && message.hasOwnProperty("bridgeIdentity"))
+                if (!$util.isString(message.bridgeIdentity))
+                    return "bridgeIdentity: string expected";
             return null;
         };
 
@@ -112,23 +132,31 @@ export const prb = $root.prb = (() => {
             if (object.peerId != null)
                 message.peerId = String(object.peerId);
             switch (object.role) {
-            case "CLIENT":
+            case "WR_CLIENT":
             case 0:
                 message.role = 0;
                 break;
-            case "DATA_PROVIDER":
+            case "WR_DATA_PROVIDER_INT":
             case 1:
                 message.role = 1;
                 break;
-            case "LIFECYCLE_MANAGER":
+            case "WR_DATA_PROVIDER_EXT":
             case 2:
                 message.role = 2;
                 break;
-            case "TRADER":
+            case "WR_LIFECYCLE_MANAGER":
             case 3:
                 message.role = 3;
                 break;
+            case "WR_TRADER":
+            case 4:
+                message.role = 4;
+                break;
             }
+            if (object.chainIdentity != null)
+                message.chainIdentity = String(object.chainIdentity);
+            if (object.bridgeIdentity != null)
+                message.bridgeIdentity = String(object.bridgeIdentity);
             return message;
         };
 
@@ -139,7 +167,9 @@ export const prb = $root.prb = (() => {
             if (options.defaults) {
                 object.hostname = "";
                 object.peerId = "";
-                object.role = options.enums === String ? "CLIENT" : 0;
+                object.role = options.enums === String ? "WR_CLIENT" : 0;
+                object.chainIdentity = "";
+                object.bridgeIdentity = "";
             }
             if (message.hostname != null && message.hasOwnProperty("hostname"))
                 object.hostname = message.hostname;
@@ -147,6 +177,10 @@ export const prb = $root.prb = (() => {
                 object.peerId = message.peerId;
             if (message.role != null && message.hasOwnProperty("role"))
                 object.role = options.enums === String ? $root.prb.WalkieRoles[message.role] : message.role;
+            if (message.chainIdentity != null && message.hasOwnProperty("chainIdentity"))
+                object.chainIdentity = message.chainIdentity;
+            if (message.bridgeIdentity != null && message.hasOwnProperty("bridgeIdentity"))
+                object.bridgeIdentity = message.bridgeIdentity;
             return object;
         };
 
@@ -170,7 +204,6 @@ export const prb = $root.prb = (() => {
         WalkieRpcRequestWrapper.prototype.nonce = "";
         WalkieRpcRequestWrapper.prototype.data = $util.newBuffer([]);
         WalkieRpcRequestWrapper.prototype.method = "";
-        WalkieRpcRequestWrapper.prototype.ns = "";
 
         WalkieRpcRequestWrapper.create = function create(properties) {
             return new WalkieRpcRequestWrapper(properties);
@@ -187,8 +220,6 @@ export const prb = $root.prb = (() => {
                 writer.uint32(26).bytes(message.data);
             if (message.method != null && Object.hasOwnProperty.call(message, "method"))
                 writer.uint32(34).string(message.method);
-            if (message.ns != null && Object.hasOwnProperty.call(message, "ns"))
-                writer.uint32(42).string(message.ns);
             return writer;
         };
 
@@ -214,9 +245,6 @@ export const prb = $root.prb = (() => {
                     break;
                 case 4:
                     message.method = reader.string();
-                    break;
-                case 5:
-                    message.ns = reader.string();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -247,9 +275,6 @@ export const prb = $root.prb = (() => {
             if (message.method != null && message.hasOwnProperty("method"))
                 if (!$util.isString(message.method))
                     return "method: string expected";
-            if (message.ns != null && message.hasOwnProperty("ns"))
-                if (!$util.isString(message.ns))
-                    return "ns: string expected";
             return null;
         };
 
@@ -275,8 +300,6 @@ export const prb = $root.prb = (() => {
                     message.data = object.data;
             if (object.method != null)
                 message.method = String(object.method);
-            if (object.ns != null)
-                message.ns = String(object.ns);
             return message;
         };
 
@@ -299,7 +322,6 @@ export const prb = $root.prb = (() => {
                         object.data = $util.newBuffer(object.data);
                 }
                 object.method = "";
-                object.ns = "";
             }
             if (message.createdAt != null && message.hasOwnProperty("createdAt"))
                 if (typeof message.createdAt === "number")
@@ -312,8 +334,6 @@ export const prb = $root.prb = (() => {
                 object.data = options.bytes === String ? $util.base64.encode(message.data, 0, message.data.length) : options.bytes === Array ? Array.prototype.slice.call(message.data) : message.data;
             if (message.method != null && message.hasOwnProperty("method"))
                 object.method = message.method;
-            if (message.ns != null && message.hasOwnProperty("ns"))
-                object.ns = message.ns;
             return object;
         };
 
@@ -504,7 +524,6 @@ export const prb = $root.prb = (() => {
         WalkieBroadcastWrapper.prototype.nonce = "";
         WalkieBroadcastWrapper.prototype.data = $util.newBuffer([]);
         WalkieBroadcastWrapper.prototype.method = "";
-        WalkieBroadcastWrapper.prototype.ns = "";
 
         WalkieBroadcastWrapper.create = function create(properties) {
             return new WalkieBroadcastWrapper(properties);
@@ -521,8 +540,6 @@ export const prb = $root.prb = (() => {
                 writer.uint32(26).bytes(message.data);
             if (message.method != null && Object.hasOwnProperty.call(message, "method"))
                 writer.uint32(34).string(message.method);
-            if (message.ns != null && Object.hasOwnProperty.call(message, "ns"))
-                writer.uint32(42).string(message.ns);
             return writer;
         };
 
@@ -548,9 +565,6 @@ export const prb = $root.prb = (() => {
                     break;
                 case 4:
                     message.method = reader.string();
-                    break;
-                case 5:
-                    message.ns = reader.string();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -581,9 +595,6 @@ export const prb = $root.prb = (() => {
             if (message.method != null && message.hasOwnProperty("method"))
                 if (!$util.isString(message.method))
                     return "method: string expected";
-            if (message.ns != null && message.hasOwnProperty("ns"))
-                if (!$util.isString(message.ns))
-                    return "ns: string expected";
             return null;
         };
 
@@ -609,8 +620,6 @@ export const prb = $root.prb = (() => {
                     message.data = object.data;
             if (object.method != null)
                 message.method = String(object.method);
-            if (object.ns != null)
-                message.ns = String(object.ns);
             return message;
         };
 
@@ -633,7 +642,6 @@ export const prb = $root.prb = (() => {
                         object.data = $util.newBuffer(object.data);
                 }
                 object.method = "";
-                object.ns = "";
             }
             if (message.createdAt != null && message.hasOwnProperty("createdAt"))
                 if (typeof message.createdAt === "number")
@@ -646,8 +654,6 @@ export const prb = $root.prb = (() => {
                 object.data = options.bytes === String ? $util.base64.encode(message.data, 0, message.data.length) : options.bytes === Array ? Array.prototype.slice.call(message.data) : message.data;
             if (message.method != null && message.hasOwnProperty("method"))
                 object.method = message.method;
-            if (message.ns != null && message.hasOwnProperty("ns"))
-                object.ns = message.ns;
             return object;
         };
 
@@ -671,9 +677,9 @@ export const prb = $root.prb = (() => {
         };
 
 
-        Object.defineProperty(WalkieRpc.prototype.getSystemInfo = function getSystemInfo(request, callback) {
-            return this.rpcCall(getSystemInfo, $root.prb.Empty, $root.prb.WalkieSystemInfo, request, callback);
-        }, "name", { value: "GetSystemInfo" });
+        Object.defineProperty(WalkieRpc.prototype.hello = function hello(request, callback) {
+            return this.rpcCall(hello, $root.prb.WalkieSystemInfo, $root.prb.WalkieSystemInfo, request, callback);
+        }, "name", { value: "Hello" });
 
 
         Object.defineProperty(WalkieRpc.prototype.getDataProviderInfo = function getDataProviderInfo(request, callback) {
@@ -684,6 +690,16 @@ export const prb = $root.prb = (() => {
         Object.defineProperty(WalkieRpc.prototype.getBlobByKey = function getBlobByKey(request, callback) {
             return this.rpcCall(getBlobByKey, $root.prb.data_provider.GetBlobByKey, $root.prb.data_provider.RawBlob, request, callback);
         }, "name", { value: "GetBlobByKey" });
+
+
+        Object.defineProperty(WalkieRpc.prototype.wantBlob = function wantBlob(request, callback) {
+            return this.rpcCall(wantBlob, $root.prb.data_provider.WantBlob, $root.prb.data_provider.BlobMeta, request, callback);
+        }, "name", { value: "WantBlob" });
+
+
+        Object.defineProperty(WalkieRpc.prototype.getBlobWithToken = function getBlobWithToken(request, callback) {
+            return this.rpcCall(getBlobWithToken, $root.prb.data_provider.GetBlob, $root.prb.data_provider.Blob, request, callback);
+        }, "name", { value: "GetBlobWithToken" });
 
 
         Object.defineProperty(WalkieRpc.prototype.listPool = function listPool(request, callback) {
@@ -714,16 +730,6 @@ export const prb = $root.prb = (() => {
         Object.defineProperty(WalkieRpc.prototype.updateWorker = function updateWorker(request, callback) {
             return this.rpcCall(updateWorker, $root.prb.data_provider.UpdateWorker, $root.prb.data_provider.WorkerList, request, callback);
         }, "name", { value: "UpdateWorker" });
-
-
-        Object.defineProperty(WalkieRpc.prototype.wantBlob = function wantBlob(request, callback) {
-            return this.rpcCall(wantBlob, $root.prb.data_provider.WantBlob, $root.prb.data_provider.BlobMeta, request, callback);
-        }, "name", { value: "WantBlob" });
-
-
-        Object.defineProperty(WalkieRpc.prototype.getBlobWithToken = function getBlobWithToken(request, callback) {
-            return this.rpcCall(getBlobWithToken, $root.prb.data_provider.GetBlob, $root.prb.data_provider.Blob, request, callback);
-        }, "name", { value: "GetBlobWithToken" });
 
         return WalkieRpc;
     })();

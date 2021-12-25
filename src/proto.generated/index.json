@@ -4,10 +4,11 @@
       "nested": {
         "WalkieRoles": {
           "values": {
-            "CLIENT": 0,
-            "DATA_PROVIDER": 1,
-            "LIFECYCLE_MANAGER": 2,
-            "TRADER": 3
+            "WR_CLIENT": 0,
+            "WR_DATA_PROVIDER_INT": 1,
+            "WR_DATA_PROVIDER_EXT": 2,
+            "WR_LIFECYCLE_MANAGER": 3,
+            "WR_TRADER": 4
           }
         },
         "WalkieSystemInfo": {
@@ -23,6 +24,14 @@
             "role": {
               "type": "WalkieRoles",
               "id": 3
+            },
+            "chainIdentity": {
+              "type": "string",
+              "id": 4
+            },
+            "bridgeIdentity": {
+              "type": "string",
+              "id": 5
             }
           }
         },
@@ -43,10 +52,6 @@
             "method": {
               "type": "string",
               "id": 4
-            },
-            "ns": {
-              "type": "string",
-              "id": 5
             }
           }
         },
@@ -91,17 +96,13 @@
             "method": {
               "type": "string",
               "id": 4
-            },
-            "ns": {
-              "type": "string",
-              "id": 5
             }
           }
         },
         "WalkieRpc": {
           "methods": {
-            "GetSystemInfo": {
-              "requestType": "Empty",
+            "Hello": {
+              "requestType": "WalkieSystemInfo",
               "responseType": "WalkieSystemInfo"
             },
             "GetDataProviderInfo": {
@@ -111,6 +112,14 @@
             "GetBlobByKey": {
               "requestType": "data_provider.GetBlobByKey",
               "responseType": "data_provider.RawBlob"
+            },
+            "WantBlob": {
+              "requestType": "data_provider.WantBlob",
+              "responseType": "data_provider.BlobMeta"
+            },
+            "GetBlobWithToken": {
+              "requestType": "data_provider.GetBlob",
+              "responseType": "data_provider.Blob"
             },
             "ListPool": {
               "requestType": "Empty",
@@ -135,14 +144,6 @@
             "UpdateWorker": {
               "requestType": "data_provider.UpdateWorker",
               "responseType": "data_provider.WorkerList"
-            },
-            "WantBlob": {
-              "requestType": "data_provider.WantBlob",
-              "responseType": "data_provider.BlobMeta"
-            },
-            "GetBlobWithToken": {
-              "requestType": "data_provider.GetBlob",
-              "responseType": "data_provider.Blob"
             }
           }
         },

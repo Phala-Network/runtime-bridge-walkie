@@ -2,16 +2,19 @@ import * as $protobuf from "protobufjs";
 export namespace prb {
 
     enum WalkieRoles {
-        CLIENT = 0,
-        DATA_PROVIDER = 1,
-        LIFECYCLE_MANAGER = 2,
-        TRADER = 3
+        WR_CLIENT = 0,
+        WR_DATA_PROVIDER_INT = 1,
+        WR_DATA_PROVIDER_EXT = 2,
+        WR_LIFECYCLE_MANAGER = 3,
+        WR_TRADER = 4
     }
 
     interface IWalkieSystemInfo {
         hostname?: (string|null);
         peerId?: (string|null);
         role?: (prb.WalkieRoles|null);
+        chainIdentity?: (string|null);
+        bridgeIdentity?: (string|null);
     }
 
     class WalkieSystemInfo implements IWalkieSystemInfo {
@@ -19,6 +22,8 @@ export namespace prb {
         public hostname: string;
         public peerId: string;
         public role: prb.WalkieRoles;
+        public chainIdentity: string;
+        public bridgeIdentity: string;
         public static create(properties?: prb.IWalkieSystemInfo): prb.WalkieSystemInfo;
         public static encode(m: prb.IWalkieSystemInfo, w?: $protobuf.Writer): $protobuf.Writer;
         public static encodeDelimited(message: prb.IWalkieSystemInfo, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -35,7 +40,6 @@ export namespace prb {
         nonce?: (string|null);
         data?: (Uint8Array|null);
         method?: (string|null);
-        ns?: (string|null);
     }
 
     class WalkieRpcRequestWrapper implements IWalkieRpcRequestWrapper {
@@ -44,7 +48,6 @@ export namespace prb {
         public nonce: string;
         public data: Uint8Array;
         public method: string;
-        public ns: string;
         public static create(properties?: prb.IWalkieRpcRequestWrapper): prb.WalkieRpcRequestWrapper;
         public static encode(m: prb.IWalkieRpcRequestWrapper, w?: $protobuf.Writer): $protobuf.Writer;
         public static encodeDelimited(message: prb.IWalkieRpcRequestWrapper, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -87,7 +90,6 @@ export namespace prb {
         nonce?: (string|null);
         data?: (Uint8Array|null);
         method?: (string|null);
-        ns?: (string|null);
     }
 
     class WalkieBroadcastWrapper implements IWalkieBroadcastWrapper {
@@ -96,7 +98,6 @@ export namespace prb {
         public nonce: string;
         public data: Uint8Array;
         public method: string;
-        public ns: string;
         public static create(properties?: prb.IWalkieBroadcastWrapper): prb.WalkieBroadcastWrapper;
         public static encode(m: prb.IWalkieBroadcastWrapper, w?: $protobuf.Writer): $protobuf.Writer;
         public static encodeDelimited(message: prb.IWalkieBroadcastWrapper, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -111,12 +112,16 @@ export namespace prb {
     class WalkieRpc extends $protobuf.rpc.Service {
         constructor(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean);
         public static create(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean): WalkieRpc;
-        public getSystemInfo(request: prb.IEmpty, callback: prb.WalkieRpc.GetSystemInfoCallback): void;
-        public getSystemInfo(request: prb.IEmpty): Promise<prb.WalkieSystemInfo>;
+        public hello(request: prb.IWalkieSystemInfo, callback: prb.WalkieRpc.HelloCallback): void;
+        public hello(request: prb.IWalkieSystemInfo): Promise<prb.WalkieSystemInfo>;
         public getDataProviderInfo(request: prb.IEmpty, callback: prb.WalkieRpc.GetDataProviderInfoCallback): void;
         public getDataProviderInfo(request: prb.IEmpty): Promise<prb.data_provider.Info>;
         public getBlobByKey(request: prb.data_provider.IGetBlobByKey, callback: prb.WalkieRpc.GetBlobByKeyCallback): void;
         public getBlobByKey(request: prb.data_provider.IGetBlobByKey): Promise<prb.data_provider.RawBlob>;
+        public wantBlob(request: prb.data_provider.IWantBlob, callback: prb.WalkieRpc.WantBlobCallback): void;
+        public wantBlob(request: prb.data_provider.IWantBlob): Promise<prb.data_provider.BlobMeta>;
+        public getBlobWithToken(request: prb.data_provider.IGetBlob, callback: prb.WalkieRpc.GetBlobWithTokenCallback): void;
+        public getBlobWithToken(request: prb.data_provider.IGetBlob): Promise<prb.data_provider.Blob>;
         public listPool(request: prb.IEmpty, callback: prb.WalkieRpc.ListPoolCallback): void;
         public listPool(request: prb.IEmpty): Promise<prb.data_provider.PoolList>;
         public createPool(request: prb.data_provider.ICreatePool, callback: prb.WalkieRpc.CreatePoolCallback): void;
@@ -129,19 +134,19 @@ export namespace prb {
         public createWorker(request: prb.data_provider.ICreateWorker): Promise<prb.data_provider.WorkerList>;
         public updateWorker(request: prb.data_provider.IUpdateWorker, callback: prb.WalkieRpc.UpdateWorkerCallback): void;
         public updateWorker(request: prb.data_provider.IUpdateWorker): Promise<prb.data_provider.WorkerList>;
-        public wantBlob(request: prb.data_provider.IWantBlob, callback: prb.WalkieRpc.WantBlobCallback): void;
-        public wantBlob(request: prb.data_provider.IWantBlob): Promise<prb.data_provider.BlobMeta>;
-        public getBlobWithToken(request: prb.data_provider.IGetBlob, callback: prb.WalkieRpc.GetBlobWithTokenCallback): void;
-        public getBlobWithToken(request: prb.data_provider.IGetBlob): Promise<prb.data_provider.Blob>;
     }
 
     namespace WalkieRpc {
 
-        type GetSystemInfoCallback = (error: (Error|null), response?: prb.WalkieSystemInfo) => void;
+        type HelloCallback = (error: (Error|null), response?: prb.WalkieSystemInfo) => void;
 
         type GetDataProviderInfoCallback = (error: (Error|null), response?: prb.data_provider.Info) => void;
 
         type GetBlobByKeyCallback = (error: (Error|null), response?: prb.data_provider.RawBlob) => void;
+
+        type WantBlobCallback = (error: (Error|null), response?: prb.data_provider.BlobMeta) => void;
+
+        type GetBlobWithTokenCallback = (error: (Error|null), response?: prb.data_provider.Blob) => void;
 
         type ListPoolCallback = (error: (Error|null), response?: prb.data_provider.PoolList) => void;
 
@@ -154,10 +159,6 @@ export namespace prb {
         type CreateWorkerCallback = (error: (Error|null), response?: prb.data_provider.WorkerList) => void;
 
         type UpdateWorkerCallback = (error: (Error|null), response?: prb.data_provider.WorkerList) => void;
-
-        type WantBlobCallback = (error: (Error|null), response?: prb.data_provider.BlobMeta) => void;
-
-        type GetBlobWithTokenCallback = (error: (Error|null), response?: prb.data_provider.Blob) => void;
     }
 
     class WalkieBroadcast extends $protobuf.rpc.Service {
