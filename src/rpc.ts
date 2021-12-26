@@ -212,7 +212,3 @@ const createErrorResponse = (
     })
   ).finish()
 }
-
-export const handleInitPeer = <R extends prb.WalkieRoles>(
-  options: WalkieHandleOptions<R>
-) => {}

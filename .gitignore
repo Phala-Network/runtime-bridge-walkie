@@ -183,3 +183,4 @@ fabric.properties
 
 # *.iml
 # modules.xml
+.vscode

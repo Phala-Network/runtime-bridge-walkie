@@ -3,10 +3,10 @@ import {
   HandlerUpdater,
   WalkieRpcHandler,
   WalkieRpcHandlerStore,
-  handleInitPeer,
   handleRpc,
   warpRpcRequester,
 } from './rpc'
+import { WalkiePeerManager, createPeerManager } from './peer'
 import { NOISE as libp2p__noise } from '@chainsafe/libp2p-noise'
 import libp2p, { Libp2pConfig } from 'libp2p'
 import libp2p__bootstrap from 'libp2p-bootstrap'
@@ -48,6 +48,7 @@ export type WalkieHandleOptions<R extends prb.WalkieRoles> = {
 
 export type WalkiePtpNode<R extends prb.WalkieRoles> =
   WalkieHandleOptions<R> & {
+    peerManager?: WalkiePeerManager
     start: libp2p['start']
     on: HandlerUpdater<RpcMethodName>
     off: HandlerRemover<RpcMethodName>
@@ -111,15 +112,16 @@ export const createPtpNode = async <R extends prb.WalkieRoles>(
 
   const request = warpRpcRequester(handleOptions)
   handleRpc(handleOptions)
-  handleInitPeer(handleOptions)
 
-  return {
+  const ret = {
     ...handleOptions,
     start: () => node.start(),
     on,
     off,
     request,
   }
+  createPeerManager(ret)
+  return ret
 }
 
 const warpHandlerUpdater =
