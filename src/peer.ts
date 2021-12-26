@@ -57,7 +57,6 @@ export const createPeerManager = (
   on('Hello', async () => getSystemInfo())
 
   node.connectionManager.on('peer:connect', (connection: Connection) => {
-    console.log(connection)
     const peerId = connection.remotePeer
     const multiaddr = connection.remoteAddr
     const readablePeerId = peerId.toB58String()
@@ -84,7 +83,7 @@ export const createPeerManager = (
             return (connection.stat.status as unknown) === 'OPEN'
           },
         }
-        console.log(peers)
+        logger.info(`Peer updated: ${readablePeerId}`)
       })
       .catch((e) => {
         logger.debug(`Failed to save peer ${readablePeerId}`, e)
