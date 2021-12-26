@@ -6,36 +6,40 @@ import {
   rpcMethods,
 } from './rpc-types'
 import { prb } from './proto.generated'
-import type { WalkieHandleOptions, WalkiePtpNode } from './ptp'
-import type PeerId from 'peer-id'
-
-import WalkieRpcRequestWrapper = prb.WalkieRpcRequestWrapper
-import WalkieRpcResponseWrapper = prb.WalkieRpcResponseWrapper
-import pbError = prb.Error
 import { randomUUID } from 'crypto'
+import PrbError from './error'
 import concat from 'it-concat'
+import logger from './logger'
 import pipe from 'it-pipe'
 import type { Connection } from 'libp2p'
 import type { Multiaddr } from 'multiaddr'
+import type { WalkieHandleOptions } from './ptp'
 import type BufferList from 'bl'
+import type PeerId from 'peer-id'
+import ResponseErrorType = prb.error.ResponseErrorType
+import WalkieRpcRequestWrapper = prb.WalkieRpcRequestWrapper
+import WalkieRpcResponseWrapper = prb.WalkieRpcResponseWrapper
 
 const CHUNK_SIZE = 2048
 const concatBuffer = (s: AsyncIterable<BufferList>) =>
   concat(s, { type: 'buffer' })
 
-export type WalkieRpcHandler<T extends RpcMethodName> = (
-  request: RpcMethodRequest<T>,
-  ptp: WalkiePtpNode<never>,
-  connection: Connection
+export type WalkieRpcHandler<
+  T extends RpcMethodName,
+  R extends prb.WalkieRoles
+> = (
+  request?: RpcMethodRequest<T>,
+  connection?: Connection,
+  options?: WalkieHandleOptions<R>
 ) => Promise<RpcMethodResponse<T>>
 
 export type WalkieRpcHandlerStore = {
-  [T in RpcMethodName]?: WalkieRpcHandler<T>
+  [T in RpcMethodName]?: WalkieRpcHandler<T, prb.WalkieRoles>
 }
 
 export type HandlerUpdater<T extends RpcMethodName> = (
   method: T,
-  handler: WalkieRpcHandler<T>,
+  handler: WalkieRpcHandler<T, prb.WalkieRoles>,
   force?: boolean
 ) => void
 
@@ -50,15 +54,15 @@ export type RpcRequester<T extends RpcMethodName> = (
 export type RpcResponse<T extends RpcMethodName> = {
   hasError: boolean
   data?: RpcMethodResponse<T>
-  error?: pbError | Error | string
+  error?: PrbError<ResponseErrorType> | Error | string
   rawResponse?: WalkieRpcResponseWrapper
 }
 
-export type WalkieRpcRequestCallbackStore = {
-  [key: string]: (rawRequest: WalkieRpcRequestWrapper) => void
+type _BufferList = BufferList & {
+  _bufs?: Buffer[]
 }
 
-const intoChunks = (buffer: Buffer, chunkSize: number) => {
+const intoChunks = (buffer: Buffer | Uint8Array, chunkSize: number) => {
   const result = []
   const len = buffer.length
 
@@ -100,20 +104,27 @@ export const warpRpcRequester = <R extends prb.WalkieRoles>(
 
       const { node } = options
       const { stream } = await node.dialProtocol(target, '/pb')
-      const result = await pipe(
+      const responseBuffer = (await pipe(
         intoChunks(Buffer.from(encodedRequest), CHUNK_SIZE),
         stream,
         concatBuffer
-      )
-      console.log(111, result)
-      // todo
+      )) as _BufferList
+      rawResponse = prb.WalkieRpcResponseWrapper.decode(responseBuffer._bufs[0])
+
+      if (rawResponse.hasError) {
+        hasError = true
+        error = PrbError.fromPb(rawResponse.error)
+      } else {
+        const responseType = pbRoot.lookupType(rpcMethods[method].responseType)
+        data = responseType.decode(
+          rawResponse.data
+        ) as unknown as RpcMethodResponse<T>
+      }
     } catch (e) {
       error = e
       hasError = true
-      console.error(e)
+      logger.error(e)
     }
-    console.log(error)
-    prb
     return {
       data,
       hasError,
@@ -131,11 +142,75 @@ export const handleRpc = <R extends prb.WalkieRoles>(
       stream.source,
       concatBuffer,
       async (source) => {
-        return intoChunks((await source) as unknown as Buffer, CHUNK_SIZE)
+        let rawRequest: WalkieRpcRequestWrapper | null = null
+        try {
+          rawRequest = WalkieRpcRequestWrapper.decode(
+            ((await source) as _BufferList)._bufs[0]
+          )
+          return intoChunks(
+            await processRpcRequest(rawRequest, connection, options),
+            CHUNK_SIZE
+          )
+        } catch (e) {
+          logger.error(e)
+          return intoChunks(createErrorResponse(e, rawRequest), CHUNK_SIZE)
+        }
       },
       stream.sink
     )
   })
+}
+
+const processRpcRequest = async <R extends prb.WalkieRoles>(
+  rawRequest: WalkieRpcRequestWrapper,
+  connection: Connection,
+  options: WalkieHandleOptions<R>
+) => {
+  const requestType = pbRoot.lookupType(
+    rpcMethods[rawRequest.method as RpcMethodName].requestType
+  )
+  const handler = options.rpcHandlers[rawRequest.method as RpcMethodName]
+  if (!handler) {
+    throw new PrbError(ResponseErrorType.NOT_FOUND, 'Handler not implemented.')
+  }
+  const request = requestType.decode(rawRequest.data)
+  const processResult = await handler(request, connection, options)
+  const responseType = pbRoot.lookupType(
+    rpcMethods[rawRequest.method as RpcMethodName].requestType
+  )
+  return WalkieRpcResponseWrapper.encode(
+    WalkieRpcResponseWrapper.create({
+      createdAt: Date.now(),
+      nonce: randomUUID(),
+      requestNonce: rawRequest?.nonce,
+      hasError: false,
+      data: responseType.encode(processResult).finish(),
+    })
+  ).finish()
+}
+
+const createErrorResponse = (
+  _error: PrbError<ResponseErrorType> | Error | string,
+  rawRequest: WalkieRpcRequestWrapper | null
+) => {
+  const error = (
+    (_error as PrbError<ResponseErrorType>).isPrbError
+      ? _error
+      : new PrbError(
+          ResponseErrorType.SERVER,
+          _error instanceof Error ? _error.toString() : (_error as string)
+        )
+  ) as PrbError<ResponseErrorType>
+
+  return WalkieRpcResponseWrapper.encode(
+    WalkieRpcResponseWrapper.create({
+      createdAt: Date.now(),
+      nonce: randomUUID(),
+      requestNonce: rawRequest?.nonce,
+      hasError: true,
+      error: error.toPb(),
+    })
+  ).finish()
 }
 
 export const handleInitPeer = <R extends prb.WalkieRoles>(

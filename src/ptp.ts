@@ -43,6 +43,7 @@ export type WalkieHandleOptions<R extends prb.WalkieRoles> = {
   chainIdentity: PtpChainIdentity<R>
   bridgeIdentity: PtpBridgeIdentity<R>
   node: libp2p
+  rpcHandlers: WalkieRpcHandlerStore
 }
 
 export type WalkiePtpNode<R extends prb.WalkieRoles> =
@@ -105,6 +106,7 @@ export const createPtpNode = async <R extends prb.WalkieRoles>(
     chainIdentity,
     bridgeIdentity,
     node,
+    rpcHandlers,
   }
 
   const request = warpRpcRequester(handleOptions)
@@ -112,11 +114,7 @@ export const createPtpNode = async <R extends prb.WalkieRoles>(
   handleInitPeer(handleOptions)
 
   return {
-    peerId,
-    role,
-    chainIdentity,
-    bridgeIdentity,
-    node,
+    ...handleOptions,
     start: () => node.start(),
     on,
     off,
@@ -128,13 +126,13 @@ const warpHandlerUpdater =
   (handlers: WalkieRpcHandlerStore) =>
   <T extends RpcMethodName>(
     method: T,
-    handler: WalkieRpcHandler<T>,
+    handler: WalkieRpcHandler<T, prb.WalkieRoles>,
     force = false
   ) => {
     if (!force && typeof handlers[method] === 'function') {
       throw new Error(`RPC method ${method} already implemented.`)
     }
-    Object.assign(handler, {
+    Object.assign(handlers, {
       [method]: handler,
     })
   }

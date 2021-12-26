@@ -358,6 +358,7 @@ export const prb = $root.prb = (() => {
         WalkieRpcResponseWrapper.prototype.nonce = "";
         WalkieRpcResponseWrapper.prototype.data = $util.newBuffer([]);
         WalkieRpcResponseWrapper.prototype.hasError = false;
+        WalkieRpcResponseWrapper.prototype.error = null;
 
         WalkieRpcResponseWrapper.create = function create(properties) {
             return new WalkieRpcResponseWrapper(properties);
@@ -376,6 +377,8 @@ export const prb = $root.prb = (() => {
                 writer.uint32(34).bytes(message.data);
             if (message.hasError != null && Object.hasOwnProperty.call(message, "hasError"))
                 writer.uint32(40).bool(message.hasError);
+            if (message.error != null && Object.hasOwnProperty.call(message, "error"))
+                $root.prb.error.ResponseError.encode(message.error, writer.uint32(50).fork()).ldelim();
             return writer;
         };
 
@@ -404,6 +407,9 @@ export const prb = $root.prb = (() => {
                     break;
                 case 5:
                     message.hasError = reader.bool();
+                    break;
+                case 6:
+                    message.error = $root.prb.error.ResponseError.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -437,6 +443,11 @@ export const prb = $root.prb = (() => {
             if (message.hasError != null && message.hasOwnProperty("hasError"))
                 if (typeof message.hasError !== "boolean")
                     return "hasError: boolean expected";
+            if (message.error != null && message.hasOwnProperty("error")) {
+                let error = $root.prb.error.ResponseError.verify(message.error);
+                if (error)
+                    return "error." + error;
+            }
             return null;
         };
 
@@ -464,6 +475,11 @@ export const prb = $root.prb = (() => {
                     message.data = object.data;
             if (object.hasError != null)
                 message.hasError = Boolean(object.hasError);
+            if (object.error != null) {
+                if (typeof object.error !== "object")
+                    throw TypeError(".prb.WalkieRpcResponseWrapper.error: object expected");
+                message.error = $root.prb.error.ResponseError.fromObject(object.error);
+            }
             return message;
         };
 
@@ -487,6 +503,7 @@ export const prb = $root.prb = (() => {
                         object.data = $util.newBuffer(object.data);
                 }
                 object.hasError = false;
+                object.error = null;
             }
             if (message.createdAt != null && message.hasOwnProperty("createdAt"))
                 if (typeof message.createdAt === "number")
@@ -501,6 +518,8 @@ export const prb = $root.prb = (() => {
                 object.data = options.bytes === String ? $util.base64.encode(message.data, 0, message.data.length) : options.bytes === Array ? Array.prototype.slice.call(message.data) : message.data;
             if (message.hasError != null && message.hasOwnProperty("hasError"))
                 object.hasError = message.hasError;
+            if (message.error != null && message.hasOwnProperty("error"))
+                object.error = $root.prb.error.ResponseError.toObject(message.error, options);
             return object;
         };
 
@@ -1289,451 +1308,151 @@ export const prb = $root.prb = (() => {
         return Account;
     })();
 
-    prb.GenericError = (function() {
+    prb.error = (function() {
 
-        function GenericError(properties) {
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
+        const error = {};
 
-        GenericError.prototype.code = "";
-        GenericError.prototype.desc = "";
+        error.ResponseErrorType = (function() {
+            const valuesById = {}, values = Object.create(valuesById);
+            values[valuesById[0] = "UNKNOWN"] = 0;
+            values[valuesById[1] = "SERVER"] = 1;
+            values[valuesById[2] = "NOT_FOUND"] = 2;
+            values[valuesById[3] = "DUPLICATED"] = 3;
+            values[valuesById[4] = "UNAUTHORIZED"] = 4;
+            return values;
+        })();
 
-        GenericError.create = function create(properties) {
-            return new GenericError(properties);
-        };
+        error.ResponseError = (function() {
 
-        GenericError.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.code != null && Object.hasOwnProperty.call(message, "code"))
-                writer.uint32(10).string(message.code);
-            if (message.desc != null && Object.hasOwnProperty.call(message, "desc"))
-                writer.uint32(18).string(message.desc);
-            return writer;
-        };
+            function ResponseError(properties) {
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
 
-        GenericError.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
+            ResponseError.prototype.type = 0;
+            ResponseError.prototype.message = "";
 
-        GenericError.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.GenericError();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.code = reader.string();
+            ResponseError.create = function create(properties) {
+                return new ResponseError(properties);
+            };
+
+            ResponseError.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    writer.uint32(8).int32(message.type);
+                if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+                    writer.uint32(18).string(message.message);
+                return writer;
+            };
+
+            ResponseError.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            ResponseError.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.error.ResponseError();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.type = reader.int32();
+                        break;
+                    case 2:
+                        message.message = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+
+            ResponseError.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            ResponseError.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.type != null && message.hasOwnProperty("type"))
+                    switch (message.type) {
+                    default:
+                        return "type: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        break;
+                    }
+                if (message.message != null && message.hasOwnProperty("message"))
+                    if (!$util.isString(message.message))
+                        return "message: string expected";
+                return null;
+            };
+
+            ResponseError.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.error.ResponseError)
+                    return object;
+                let message = new $root.prb.error.ResponseError();
+                switch (object.type) {
+                case "UNKNOWN":
+                case 0:
+                    message.type = 0;
                     break;
+                case "SERVER":
+                case 1:
+                    message.type = 1;
+                    break;
+                case "NOT_FOUND":
                 case 2:
-                    message.desc = reader.string();
+                    message.type = 2;
                     break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-                }
-            }
-            return message;
-        };
-
-        GenericError.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-
-        GenericError.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.code != null && message.hasOwnProperty("code"))
-                if (!$util.isString(message.code))
-                    return "code: string expected";
-            if (message.desc != null && message.hasOwnProperty("desc"))
-                if (!$util.isString(message.desc))
-                    return "desc: string expected";
-            return null;
-        };
-
-        GenericError.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.GenericError)
-                return object;
-            let message = new $root.prb.GenericError();
-            if (object.code != null)
-                message.code = String(object.code);
-            if (object.desc != null)
-                message.desc = String(object.desc);
-            return message;
-        };
-
-        GenericError.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.defaults) {
-                object.code = "";
-                object.desc = "";
-            }
-            if (message.code != null && message.hasOwnProperty("code"))
-                object.code = message.code;
-            if (message.desc != null && message.hasOwnProperty("desc"))
-                object.desc = message.desc;
-            return object;
-        };
-
-        GenericError.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
-
-        return GenericError;
-    })();
-
-    prb.NotFoundError = (function() {
-
-        function NotFoundError(properties) {
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-
-        NotFoundError.prototype.desc = "";
-
-        NotFoundError.create = function create(properties) {
-            return new NotFoundError(properties);
-        };
-
-        NotFoundError.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.desc != null && Object.hasOwnProperty.call(message, "desc"))
-                writer.uint32(10).string(message.desc);
-            return writer;
-        };
-
-        NotFoundError.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        NotFoundError.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.NotFoundError();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.desc = reader.string();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-                }
-            }
-            return message;
-        };
-
-        NotFoundError.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-
-        NotFoundError.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.desc != null && message.hasOwnProperty("desc"))
-                if (!$util.isString(message.desc))
-                    return "desc: string expected";
-            return null;
-        };
-
-        NotFoundError.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.NotFoundError)
-                return object;
-            let message = new $root.prb.NotFoundError();
-            if (object.desc != null)
-                message.desc = String(object.desc);
-            return message;
-        };
-
-        NotFoundError.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.defaults)
-                object.desc = "";
-            if (message.desc != null && message.hasOwnProperty("desc"))
-                object.desc = message.desc;
-            return object;
-        };
-
-        NotFoundError.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
-
-        return NotFoundError;
-    })();
-
-    prb.DuplicatedError = (function() {
-
-        function DuplicatedError(properties) {
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-
-        DuplicatedError.prototype.desc = "";
-
-        DuplicatedError.create = function create(properties) {
-            return new DuplicatedError(properties);
-        };
-
-        DuplicatedError.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.desc != null && Object.hasOwnProperty.call(message, "desc"))
-                writer.uint32(10).string(message.desc);
-            return writer;
-        };
-
-        DuplicatedError.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        DuplicatedError.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.DuplicatedError();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.desc = reader.string();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-                }
-            }
-            return message;
-        };
-
-        DuplicatedError.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-
-        DuplicatedError.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.desc != null && message.hasOwnProperty("desc"))
-                if (!$util.isString(message.desc))
-                    return "desc: string expected";
-            return null;
-        };
-
-        DuplicatedError.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.DuplicatedError)
-                return object;
-            let message = new $root.prb.DuplicatedError();
-            if (object.desc != null)
-                message.desc = String(object.desc);
-            return message;
-        };
-
-        DuplicatedError.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.defaults)
-                object.desc = "";
-            if (message.desc != null && message.hasOwnProperty("desc"))
-                object.desc = message.desc;
-            return object;
-        };
-
-        DuplicatedError.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
-
-        return DuplicatedError;
-    })();
-
-    prb.Error = (function() {
-
-        function Error(properties) {
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-
-        Error.prototype.extra = "";
-        Error.prototype.generic = null;
-        Error.prototype.notFound = null;
-        Error.prototype.duplicated = null;
-
-        let $oneOfFields;
-
-        Object.defineProperty(Error.prototype, "error", {
-            get: $util.oneOfGetter($oneOfFields = ["generic", "notFound", "duplicated"]),
-            set: $util.oneOfSetter($oneOfFields)
-        });
-
-        Error.create = function create(properties) {
-            return new Error(properties);
-        };
-
-        Error.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.extra != null && Object.hasOwnProperty.call(message, "extra"))
-                writer.uint32(10).string(message.extra);
-            if (message.generic != null && Object.hasOwnProperty.call(message, "generic"))
-                $root.prb.GenericError.encode(message.generic, writer.uint32(18).fork()).ldelim();
-            if (message.notFound != null && Object.hasOwnProperty.call(message, "notFound"))
-                $root.prb.NotFoundError.encode(message.notFound, writer.uint32(26).fork()).ldelim();
-            if (message.duplicated != null && Object.hasOwnProperty.call(message, "duplicated"))
-                $root.prb.DuplicatedError.encode(message.duplicated, writer.uint32(34).fork()).ldelim();
-            return writer;
-        };
-
-        Error.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        Error.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.Error();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.extra = reader.string();
-                    break;
-                case 2:
-                    message.generic = $root.prb.GenericError.decode(reader, reader.uint32());
-                    break;
+                case "DUPLICATED":
                 case 3:
-                    message.notFound = $root.prb.NotFoundError.decode(reader, reader.uint32());
+                    message.type = 3;
                     break;
+                case "UNAUTHORIZED":
                 case 4:
-                    message.duplicated = $root.prb.DuplicatedError.decode(reader, reader.uint32());
-                    break;
-                default:
-                    reader.skipType(tag & 7);
+                    message.type = 4;
                     break;
                 }
-            }
-            return message;
-        };
+                if (object.message != null)
+                    message.message = String(object.message);
+                return message;
+            };
 
-        Error.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-
-        Error.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            let properties = {};
-            if (message.extra != null && message.hasOwnProperty("extra"))
-                if (!$util.isString(message.extra))
-                    return "extra: string expected";
-            if (message.generic != null && message.hasOwnProperty("generic")) {
-                properties.error = 1;
-                {
-                    let error = $root.prb.GenericError.verify(message.generic);
-                    if (error)
-                        return "generic." + error;
+            ResponseError.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.defaults) {
+                    object.type = options.enums === String ? "UNKNOWN" : 0;
+                    object.message = "";
                 }
-            }
-            if (message.notFound != null && message.hasOwnProperty("notFound")) {
-                if (properties.error === 1)
-                    return "error: multiple values";
-                properties.error = 1;
-                {
-                    let error = $root.prb.NotFoundError.verify(message.notFound);
-                    if (error)
-                        return "notFound." + error;
-                }
-            }
-            if (message.duplicated != null && message.hasOwnProperty("duplicated")) {
-                if (properties.error === 1)
-                    return "error: multiple values";
-                properties.error = 1;
-                {
-                    let error = $root.prb.DuplicatedError.verify(message.duplicated);
-                    if (error)
-                        return "duplicated." + error;
-                }
-            }
-            return null;
-        };
-
-        Error.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.Error)
+                if (message.type != null && message.hasOwnProperty("type"))
+                    object.type = options.enums === String ? $root.prb.error.ResponseErrorType[message.type] : message.type;
+                if (message.message != null && message.hasOwnProperty("message"))
+                    object.message = message.message;
                 return object;
-            let message = new $root.prb.Error();
-            if (object.extra != null)
-                message.extra = String(object.extra);
-            if (object.generic != null) {
-                if (typeof object.generic !== "object")
-                    throw TypeError(".prb.Error.generic: object expected");
-                message.generic = $root.prb.GenericError.fromObject(object.generic);
-            }
-            if (object.notFound != null) {
-                if (typeof object.notFound !== "object")
-                    throw TypeError(".prb.Error.notFound: object expected");
-                message.notFound = $root.prb.NotFoundError.fromObject(object.notFound);
-            }
-            if (object.duplicated != null) {
-                if (typeof object.duplicated !== "object")
-                    throw TypeError(".prb.Error.duplicated: object expected");
-                message.duplicated = $root.prb.DuplicatedError.fromObject(object.duplicated);
-            }
-            return message;
-        };
+            };
 
-        Error.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.defaults)
-                object.extra = "";
-            if (message.extra != null && message.hasOwnProperty("extra"))
-                object.extra = message.extra;
-            if (message.generic != null && message.hasOwnProperty("generic")) {
-                object.generic = $root.prb.GenericError.toObject(message.generic, options);
-                if (options.oneofs)
-                    object.error = "generic";
-            }
-            if (message.notFound != null && message.hasOwnProperty("notFound")) {
-                object.notFound = $root.prb.NotFoundError.toObject(message.notFound, options);
-                if (options.oneofs)
-                    object.error = "notFound";
-            }
-            if (message.duplicated != null && message.hasOwnProperty("duplicated")) {
-                object.duplicated = $root.prb.DuplicatedError.toObject(message.duplicated, options);
-                if (options.oneofs)
-                    object.error = "duplicated";
-            }
-            return object;
-        };
+            ResponseError.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
 
-        Error.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
+            return ResponseError;
+        })();
 
-        return Error;
+        return error;
     })();
 
     prb.db = (function() {

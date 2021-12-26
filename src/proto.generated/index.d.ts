@@ -65,6 +65,7 @@ export namespace prb {
         nonce?: (string|null);
         data?: (Uint8Array|null);
         hasError?: (boolean|null);
+        error?: (prb.error.IResponseError|null);
     }
 
     class WalkieRpcResponseWrapper implements IWalkieRpcResponseWrapper {
@@ -74,6 +75,7 @@ export namespace prb {
         public nonce: string;
         public data: Uint8Array;
         public hasError: boolean;
+        public error?: (prb.error.IResponseError|null);
         public static create(properties?: prb.IWalkieRpcResponseWrapper): prb.WalkieRpcResponseWrapper;
         public static encode(m: prb.IWalkieRpcResponseWrapper, w?: $protobuf.Writer): $protobuf.Writer;
         public static encodeDelimited(message: prb.IWalkieRpcResponseWrapper, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -278,85 +280,35 @@ export namespace prb {
         public toJSON(): { [k: string]: any };
     }
 
-    interface IGenericError {
-        code?: (string|null);
-        desc?: (string|null);
-    }
+    namespace error {
 
-    class GenericError implements IGenericError {
-        constructor(p?: prb.IGenericError);
-        public code: string;
-        public desc: string;
-        public static create(properties?: prb.IGenericError): prb.GenericError;
-        public static encode(m: prb.IGenericError, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.IGenericError, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.GenericError;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.GenericError;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.GenericError;
-        public static toObject(m: prb.GenericError, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
-    }
+        enum ResponseErrorType {
+            UNKNOWN = 0,
+            SERVER = 1,
+            NOT_FOUND = 2,
+            DUPLICATED = 3,
+            UNAUTHORIZED = 4
+        }
 
-    interface INotFoundError {
-        desc?: (string|null);
-    }
+        interface IResponseError {
+            type?: (prb.error.ResponseErrorType|null);
+            message?: (string|null);
+        }
 
-    class NotFoundError implements INotFoundError {
-        constructor(p?: prb.INotFoundError);
-        public desc: string;
-        public static create(properties?: prb.INotFoundError): prb.NotFoundError;
-        public static encode(m: prb.INotFoundError, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.INotFoundError, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.NotFoundError;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.NotFoundError;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.NotFoundError;
-        public static toObject(m: prb.NotFoundError, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
-    }
-
-    interface IDuplicatedError {
-        desc?: (string|null);
-    }
-
-    class DuplicatedError implements IDuplicatedError {
-        constructor(p?: prb.IDuplicatedError);
-        public desc: string;
-        public static create(properties?: prb.IDuplicatedError): prb.DuplicatedError;
-        public static encode(m: prb.IDuplicatedError, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.IDuplicatedError, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.DuplicatedError;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.DuplicatedError;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.DuplicatedError;
-        public static toObject(m: prb.DuplicatedError, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
-    }
-
-    interface IError {
-        extra?: (string|null);
-        generic?: (prb.IGenericError|null);
-        notFound?: (prb.INotFoundError|null);
-        duplicated?: (prb.IDuplicatedError|null);
-    }
-
-    class Error implements IError {
-        constructor(p?: prb.IError);
-        public extra: string;
-        public generic?: (prb.IGenericError|null);
-        public notFound?: (prb.INotFoundError|null);
-        public duplicated?: (prb.IDuplicatedError|null);
-        public error?: ("generic"|"notFound"|"duplicated");
-        public static create(properties?: prb.IError): prb.Error;
-        public static encode(m: prb.IError, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.IError, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.Error;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.Error;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.Error;
-        public static toObject(m: prb.Error, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
+        class ResponseError implements IResponseError {
+            constructor(p?: prb.error.IResponseError);
+            public type: prb.error.ResponseErrorType;
+            public message: string;
+            public static create(properties?: prb.error.IResponseError): prb.error.ResponseError;
+            public static encode(m: prb.error.IResponseError, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.error.IResponseError, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.error.ResponseError;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.error.ResponseError;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.error.ResponseError;
+            public static toObject(m: prb.error.ResponseError, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
     }
 
     namespace db {

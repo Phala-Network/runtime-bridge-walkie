@@ -38,6 +38,7 @@ message WalkieRpcResponseWrapper {
   string nonce = 3;
   bytes data = 4;
   bool has_error = 5;
+  error.ResponseError error = 6;
 }
 
 message WalkieBroadcastWrapper {

@@ -1,25 +1,16 @@
 syntax = "proto3";
 
-package prb;
+package prb.error;
 
-message GenericError {
-  string code = 1;
-  string desc = 2;
+enum ResponseErrorType {
+  UNKNOWN = 0;
+  SERVER = 1;
+  NOT_FOUND = 2;
+  DUPLICATED = 3;
+  UNAUTHORIZED = 4;
 }
 
-message NotFoundError {
-  string desc = 1;
-}
-
-message DuplicatedError {
-  string desc = 1;
-}
-
-message Error {
-  string extra = 1;
-  oneof error {
-    GenericError generic = 2;
-    NotFoundError not_found = 3;
-    DuplicatedError duplicated = 4;
-  }
+message ResponseError {
+  ResponseErrorType type = 1;
+  string message = 2;
 }

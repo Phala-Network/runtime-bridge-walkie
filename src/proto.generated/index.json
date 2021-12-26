@@ -76,6 +76,10 @@
             "hasError": {
               "type": "bool",
               "id": 5
+            },
+            "error": {
+              "type": "error.ResponseError",
+              "id": 6
             }
           }
         },
@@ -204,60 +208,28 @@
             }
           }
         },
-        "GenericError": {
-          "fields": {
-            "code": {
-              "type": "string",
-              "id": 1
+        "error": {
+          "nested": {
+            "ResponseErrorType": {
+              "values": {
+                "UNKNOWN": 0,
+                "SERVER": 1,
+                "NOT_FOUND": 2,
+                "DUPLICATED": 3,
+                "UNAUTHORIZED": 4
+              }
             },
-            "desc": {
-              "type": "string",
-              "id": 2
-            }
-          }
-        },
-        "NotFoundError": {
-          "fields": {
-            "desc": {
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "DuplicatedError": {
-          "fields": {
-            "desc": {
-              "type": "string",
-              "id": 1
-            }
-          }
-        },
-        "Error": {
-          "oneofs": {
-            "error": {
-              "oneof": [
-                "generic",
-                "notFound",
-                "duplicated"
-              ]
-            }
-          },
-          "fields": {
-            "extra": {
-              "type": "string",
-              "id": 1
-            },
-            "generic": {
-              "type": "GenericError",
-              "id": 2
-            },
-            "notFound": {
-              "type": "NotFoundError",
-              "id": 3
-            },
-            "duplicated": {
-              "type": "DuplicatedError",
-              "id": 4
+            "ResponseError": {
+              "fields": {
+                "type": {
+                  "type": "ResponseErrorType",
+                  "id": 1
+                },
+                "message": {
+                  "type": "string",
+                  "id": 2
+                }
+              }
             }
           }
         },
