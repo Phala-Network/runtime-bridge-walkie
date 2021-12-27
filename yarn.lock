@@ -3185,7 +3185,7 @@ libp2p-tcp@^0.17.2:
     multiaddr "^10.0.0"
     stream-to-it "^0.2.2"
 
-libp2p-utils@^0.4.0:
+libp2p-utils@^0.4.0, libp2p-utils@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/libp2p-utils/-/libp2p-utils-0.4.1.tgz#260405434c376db8a1d9023867373b99b81c657f"
   integrity sha512-kq/US2unamiyY+YwP47dO1uqpAdcbdYI2Fzi9JIEhjfPBaD1MR/uyQ/YP7ABthl3EaxAjIQYd1TVp85d6QKAtQ==

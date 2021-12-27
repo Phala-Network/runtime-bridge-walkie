@@ -46,7 +46,7 @@ export type HandlerUpdater<T extends RpcMethodName> = (
 export type HandlerRemover<T extends RpcMethodName> = (method: T) => void
 
 export type RpcRequester<T extends RpcMethodName> = (
-  target: PeerId | string | Multiaddr,
+  target: PeerId | string | Multiaddr | Connection,
   method: T,
   request: RpcMethodRequest<T>
 ) => Promise<RpcResponse<T>>
@@ -79,9 +79,9 @@ const intoChunks = (buffer: Buffer | Uint8Array, chunkSize: number) => {
 
 export const warpRpcRequester = <R extends prb.WalkieRoles>(
   options: WalkieHandleOptions<R>
-) => {
+): RpcRequester<RpcMethodName> => {
   return async <T extends RpcMethodName>(
-    target: PeerId | string | Multiaddr,
+    target: PeerId | string | Multiaddr | Connection,
     method: T,
     request: RpcMethodRequest<T>
   ): Promise<RpcResponse<T>> => {
@@ -103,7 +103,10 @@ export const warpRpcRequester = <R extends prb.WalkieRoles>(
       ).finish()
 
       const { node } = options
-      const { stream } = await node.dialProtocol(target, '/pb')
+      const { stream } = await ((target as Connection).newStream
+        ? (target as Connection).newStream('/pb')
+        : node.dialProtocol(target as PeerId | string | Multiaddr, '/pb'))
+
       const responseBuffer = (await pipe(
         intoChunks(Buffer.from(encodedRequest), CHUNK_SIZE),
         stream,

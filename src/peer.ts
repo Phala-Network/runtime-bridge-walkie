@@ -4,6 +4,9 @@ import { prb } from './proto.generated'
 import PQueue from 'p-queue'
 import type { Connection } from 'libp2p'
 import type { Multiaddr } from 'multiaddr'
+import type { RpcMethodName } from './rpc-types'
+import type { RpcMethodRequest } from './rpc-types'
+import type { RpcResponse } from './rpc'
 import type { WalkiePtpNode } from './ptp'
 import type PeerId from 'peer-id'
 import type PeerStore from 'libp2p/dist/src/peer-store'
@@ -21,10 +24,20 @@ export type WalkiePeer = {
   chainIdentity?: string
   bridgeIdentity?: string
   get isConnOpen(): boolean
+  dial: WalkiePeerRequester
 }
+
+export type WalkiePeerRequester = <T extends RpcMethodName>(
+  method: T,
+  request: RpcMethodRequest<T>
+) => Promise<RpcResponse<T>>
 
 export type WalkiePeerStore = {
   [key: string]: WalkiePeer
+}
+
+export type WalkiePeerPendingStore = {
+  [key: string]: boolean | null
 }
 
 export type WalkiePeerManager = {
@@ -40,6 +53,7 @@ export const createPeerManager = (
   prbNode: WalkiePtpNode<prb.WalkieRoles>
 ): void => {
   const peers: WalkiePeerStore = {}
+  const peerPendingList: WalkiePeerPendingStore = {}
   const { node, request, on } = prbNode
   const handshakeQueue = new PQueue({
     concurrency: 10,
@@ -58,13 +72,33 @@ export const createPeerManager = (
 
   node.connectionManager.on('peer:connect', (connection: Connection) => {
     const peerId = connection.remotePeer
-    const multiaddr = connection.remoteAddr
     const readablePeerId = peerId.toB58String()
+    if (peers[readablePeerId]?.isConnOpen || peerPendingList[readablePeerId]) {
+      return
+    }
+    if (connection.stat.direction === 'inbound') {
+      return
+    }
+    peerPendingList[readablePeerId] = true
+    logger.debug(
+      `Established ${connection.stat.direction} connection to ${readablePeerId}, trying handshake...`,
+      {
+        remoteAddr: connection.remoteAddr.toString(),
+      }
+    )
     handshakeQueue
       .add(async () => {
-        logger.debug(`Peer connected: ${readablePeerId}`)
+        const isConnOpen = () => (connection.stat.status as unknown) === 'OPEN'
+        const dial: WalkiePeerRequester = async (method, _request) => {
+          const currConn = isConnOpen()
+            ? connection
+            : await node.dialer.connectToPeer(peerId)
+          return request(currConn, method, _request)
+        }
+
         const peer = node.peerStore.get(peerId)
-        const peerSystemInfo = await request(peerId, 'Hello', getSystemInfo())
+        const multiaddr = connection.remoteAddr
+        const peerSystemInfo = await dial('Hello', getSystemInfo())
         if (peerSystemInfo.hasError) {
           throw peerSystemInfo.error
         }
@@ -80,14 +114,33 @@ export const createPeerManager = (
           chainIdentity: data.chainIdentity,
           bridgeIdentity: data.bridgeIdentity,
           get isConnOpen() {
-            return (connection.stat.status as unknown) === 'OPEN'
+            return isConnOpen()
           },
+          dial,
         }
-        logger.info(`Peer updated: ${readablePeerId}`)
+        logger.info(`Peer saved: ${readablePeerId}`)
       })
       .catch((e) => {
-        logger.debug(`Failed to save peer ${readablePeerId}`, e)
+        logger.debug(`Failed to handshake with peer ${readablePeerId}`, e)
       })
+      .finally(() => {
+        delete peerPendingList[readablePeerId]
+      })
+  })
+
+  node.on('peer:discovery', (peerId: PeerId) => {
+    const readablePeerId = peerId.toB58String()
+
+    if (peers[readablePeerId]?.isConnOpen || peerPendingList[readablePeerId]) {
+      return
+    }
+
+    logger.debug(`Discovered peer ${readablePeerId}, trying to connect...`)
+    node.dialer.connectToPeer(peerId).catch((e) => {
+      logger.debug(`Failed to connect to ${readablePeerId}`, e)
+    })
+
+    // todo: check state at interval
   })
 
   const filterPeers = (role: WalkieRoles) => {

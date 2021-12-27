@@ -78,9 +78,9 @@ export const createPtpNode = async <R extends prb.WalkieRoles>(
         enabled: true,
       },
       peerDiscovery: {
-        autoDial: true,
+        autoDial: false,
         bootstrap: {
-          interval: 60e3,
+          interval: 20e3,
           enabled: true,
           list: props.bootstrapAddresses,
         },
