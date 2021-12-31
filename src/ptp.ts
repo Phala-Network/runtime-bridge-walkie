@@ -128,7 +128,7 @@ const warpHandlerUpdater =
   (handlers: WalkieRpcHandlerStore) =>
   <T extends RpcMethodName>(
     method: T,
-    handler: WalkieRpcHandler<T, prb.WalkieRoles>,
+    handler: WalkieRpcHandler<T>,
     force = false
   ) => {
     if (!force && typeof handlers[method] === 'function') {

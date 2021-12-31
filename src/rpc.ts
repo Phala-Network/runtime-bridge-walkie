@@ -24,22 +24,19 @@ const CHUNK_SIZE = 2048
 const concatBuffer = (s: AsyncIterable<BufferList>) =>
   concat(s, { type: 'buffer' })
 
-export type WalkieRpcHandler<
-  T extends RpcMethodName,
-  R extends prb.WalkieRoles
-> = (
+export type WalkieRpcHandler<T extends RpcMethodName> = (
   request?: RpcMethodRequest<T>,
   connection?: Connection,
-  options?: WalkieHandleOptions<R>
-) => Promise<RpcMethodResponse<T>>
+  options?: WalkieHandleOptions<prb.WalkieRoles>
+) => RpcMethodResponse<T> | Promise<RpcMethodResponse<T>>
 
 export type WalkieRpcHandlerStore = {
-  [T in RpcMethodName]?: WalkieRpcHandler<T, prb.WalkieRoles>
+  [T in RpcMethodName]?: WalkieRpcHandler<T>
 }
 
 export type HandlerUpdater<T extends RpcMethodName> = (
   method: T,
-  handler: WalkieRpcHandler<T, prb.WalkieRoles>,
+  handler: WalkieRpcHandler<T>,
   force?: boolean
 ) => void
 

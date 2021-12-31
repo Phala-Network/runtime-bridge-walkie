@@ -530,9 +530,8 @@ export namespace prb {
 
         enum Status {
             S_UNKNOWN = 0,
-            S_IDLE = 1,
-            S_BUSY = 2,
-            S_ORPHAN = 3
+            S_SYHCHING = 1,
+            S_IDLE = 2
         }
 
         enum BlobType {
@@ -545,13 +544,14 @@ export namespace prb {
             status?: (prb.data_provider.Status|null);
             paraId?: (number|null);
             parentStartHeader?: (number|null);
-            parentKnownEight?: (number|null);
-            parentBlobEight?: (number|null);
-            parentArchivedEight?: (number|null);
-            paraKnownEight?: (number|null);
-            paraBlobEight?: (number|null);
-            paraArchivedEight?: (number|null);
-            synched?: (boolean|null);
+            parentTarget?: (number|null);
+            parentFetchedHeight?: (number|null);
+            parentProcessedHeight?: (number|null);
+            parentCommittedHeight?: (number|null);
+            paraTarget?: (number|null);
+            paraFetchedHeight?: (number|null);
+            paraProcessedHeight?: (number|null);
+            paraCommittedHeight?: (number|null);
         }
 
         class Info implements IInfo {
@@ -559,13 +559,14 @@ export namespace prb {
             public status: prb.data_provider.Status;
             public paraId: number;
             public parentStartHeader: number;
-            public parentKnownEight: number;
-            public parentBlobEight: number;
-            public parentArchivedEight: number;
-            public paraKnownEight: number;
-            public paraBlobEight: number;
-            public paraArchivedEight: number;
-            public synched: boolean;
+            public parentTarget: number;
+            public parentFetchedHeight: number;
+            public parentProcessedHeight: number;
+            public parentCommittedHeight: number;
+            public paraTarget: number;
+            public paraFetchedHeight: number;
+            public paraProcessedHeight: number;
+            public paraCommittedHeight: number;
             public static create(properties?: prb.data_provider.IInfo): prb.data_provider.Info;
             public static encode(m: prb.data_provider.IInfo, w?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: prb.data_provider.IInfo, writer?: $protobuf.Writer): $protobuf.Writer;

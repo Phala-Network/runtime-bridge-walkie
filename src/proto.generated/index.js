@@ -2860,9 +2860,8 @@ export const prb = $root.prb = (() => {
         data_provider.Status = (function() {
             const valuesById = {}, values = Object.create(valuesById);
             values[valuesById[0] = "S_UNKNOWN"] = 0;
-            values[valuesById[1] = "S_IDLE"] = 1;
-            values[valuesById[2] = "S_BUSY"] = 2;
-            values[valuesById[3] = "S_ORPHAN"] = 3;
+            values[valuesById[1] = "S_SYHCHING"] = 1;
+            values[valuesById[2] = "S_IDLE"] = 2;
             return values;
         })();
 
@@ -2886,13 +2885,14 @@ export const prb = $root.prb = (() => {
             Info.prototype.status = 0;
             Info.prototype.paraId = 0;
             Info.prototype.parentStartHeader = 0;
-            Info.prototype.parentKnownEight = 0;
-            Info.prototype.parentBlobEight = 0;
-            Info.prototype.parentArchivedEight = 0;
-            Info.prototype.paraKnownEight = 0;
-            Info.prototype.paraBlobEight = 0;
-            Info.prototype.paraArchivedEight = 0;
-            Info.prototype.synched = false;
+            Info.prototype.parentTarget = 0;
+            Info.prototype.parentFetchedHeight = 0;
+            Info.prototype.parentProcessedHeight = 0;
+            Info.prototype.parentCommittedHeight = 0;
+            Info.prototype.paraTarget = 0;
+            Info.prototype.paraFetchedHeight = 0;
+            Info.prototype.paraProcessedHeight = 0;
+            Info.prototype.paraCommittedHeight = 0;
 
             Info.create = function create(properties) {
                 return new Info(properties);
@@ -2907,20 +2907,22 @@ export const prb = $root.prb = (() => {
                     writer.uint32(16).int32(message.paraId);
                 if (message.parentStartHeader != null && Object.hasOwnProperty.call(message, "parentStartHeader"))
                     writer.uint32(24).int32(message.parentStartHeader);
-                if (message.parentKnownEight != null && Object.hasOwnProperty.call(message, "parentKnownEight"))
-                    writer.uint32(32).int32(message.parentKnownEight);
-                if (message.parentBlobEight != null && Object.hasOwnProperty.call(message, "parentBlobEight"))
-                    writer.uint32(40).int32(message.parentBlobEight);
-                if (message.parentArchivedEight != null && Object.hasOwnProperty.call(message, "parentArchivedEight"))
-                    writer.uint32(48).int32(message.parentArchivedEight);
-                if (message.paraKnownEight != null && Object.hasOwnProperty.call(message, "paraKnownEight"))
-                    writer.uint32(56).int32(message.paraKnownEight);
-                if (message.paraBlobEight != null && Object.hasOwnProperty.call(message, "paraBlobEight"))
-                    writer.uint32(64).int32(message.paraBlobEight);
-                if (message.paraArchivedEight != null && Object.hasOwnProperty.call(message, "paraArchivedEight"))
-                    writer.uint32(72).int32(message.paraArchivedEight);
-                if (message.synched != null && Object.hasOwnProperty.call(message, "synched"))
-                    writer.uint32(80).bool(message.synched);
+                if (message.parentTarget != null && Object.hasOwnProperty.call(message, "parentTarget"))
+                    writer.uint32(32).int32(message.parentTarget);
+                if (message.parentFetchedHeight != null && Object.hasOwnProperty.call(message, "parentFetchedHeight"))
+                    writer.uint32(40).int32(message.parentFetchedHeight);
+                if (message.parentProcessedHeight != null && Object.hasOwnProperty.call(message, "parentProcessedHeight"))
+                    writer.uint32(48).int32(message.parentProcessedHeight);
+                if (message.parentCommittedHeight != null && Object.hasOwnProperty.call(message, "parentCommittedHeight"))
+                    writer.uint32(56).int32(message.parentCommittedHeight);
+                if (message.paraTarget != null && Object.hasOwnProperty.call(message, "paraTarget"))
+                    writer.uint32(64).int32(message.paraTarget);
+                if (message.paraFetchedHeight != null && Object.hasOwnProperty.call(message, "paraFetchedHeight"))
+                    writer.uint32(72).int32(message.paraFetchedHeight);
+                if (message.paraProcessedHeight != null && Object.hasOwnProperty.call(message, "paraProcessedHeight"))
+                    writer.uint32(80).int32(message.paraProcessedHeight);
+                if (message.paraCommittedHeight != null && Object.hasOwnProperty.call(message, "paraCommittedHeight"))
+                    writer.uint32(88).int32(message.paraCommittedHeight);
                 return writer;
             };
 
@@ -2945,25 +2947,28 @@ export const prb = $root.prb = (() => {
                         message.parentStartHeader = reader.int32();
                         break;
                     case 4:
-                        message.parentKnownEight = reader.int32();
+                        message.parentTarget = reader.int32();
                         break;
                     case 5:
-                        message.parentBlobEight = reader.int32();
+                        message.parentFetchedHeight = reader.int32();
                         break;
                     case 6:
-                        message.parentArchivedEight = reader.int32();
+                        message.parentProcessedHeight = reader.int32();
                         break;
                     case 7:
-                        message.paraKnownEight = reader.int32();
+                        message.parentCommittedHeight = reader.int32();
                         break;
                     case 8:
-                        message.paraBlobEight = reader.int32();
+                        message.paraTarget = reader.int32();
                         break;
                     case 9:
-                        message.paraArchivedEight = reader.int32();
+                        message.paraFetchedHeight = reader.int32();
                         break;
                     case 10:
-                        message.synched = reader.bool();
+                        message.paraProcessedHeight = reader.int32();
+                        break;
+                    case 11:
+                        message.paraCommittedHeight = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2989,7 +2994,6 @@ export const prb = $root.prb = (() => {
                     case 0:
                     case 1:
                     case 2:
-                    case 3:
                         break;
                     }
                 if (message.paraId != null && message.hasOwnProperty("paraId"))
@@ -2998,27 +3002,30 @@ export const prb = $root.prb = (() => {
                 if (message.parentStartHeader != null && message.hasOwnProperty("parentStartHeader"))
                     if (!$util.isInteger(message.parentStartHeader))
                         return "parentStartHeader: integer expected";
-                if (message.parentKnownEight != null && message.hasOwnProperty("parentKnownEight"))
-                    if (!$util.isInteger(message.parentKnownEight))
-                        return "parentKnownEight: integer expected";
-                if (message.parentBlobEight != null && message.hasOwnProperty("parentBlobEight"))
-                    if (!$util.isInteger(message.parentBlobEight))
-                        return "parentBlobEight: integer expected";
-                if (message.parentArchivedEight != null && message.hasOwnProperty("parentArchivedEight"))
-                    if (!$util.isInteger(message.parentArchivedEight))
-                        return "parentArchivedEight: integer expected";
-                if (message.paraKnownEight != null && message.hasOwnProperty("paraKnownEight"))
-                    if (!$util.isInteger(message.paraKnownEight))
-                        return "paraKnownEight: integer expected";
-                if (message.paraBlobEight != null && message.hasOwnProperty("paraBlobEight"))
-                    if (!$util.isInteger(message.paraBlobEight))
-                        return "paraBlobEight: integer expected";
-                if (message.paraArchivedEight != null && message.hasOwnProperty("paraArchivedEight"))
-                    if (!$util.isInteger(message.paraArchivedEight))
-                        return "paraArchivedEight: integer expected";
-                if (message.synched != null && message.hasOwnProperty("synched"))
-                    if (typeof message.synched !== "boolean")
-                        return "synched: boolean expected";
+                if (message.parentTarget != null && message.hasOwnProperty("parentTarget"))
+                    if (!$util.isInteger(message.parentTarget))
+                        return "parentTarget: integer expected";
+                if (message.parentFetchedHeight != null && message.hasOwnProperty("parentFetchedHeight"))
+                    if (!$util.isInteger(message.parentFetchedHeight))
+                        return "parentFetchedHeight: integer expected";
+                if (message.parentProcessedHeight != null && message.hasOwnProperty("parentProcessedHeight"))
+                    if (!$util.isInteger(message.parentProcessedHeight))
+                        return "parentProcessedHeight: integer expected";
+                if (message.parentCommittedHeight != null && message.hasOwnProperty("parentCommittedHeight"))
+                    if (!$util.isInteger(message.parentCommittedHeight))
+                        return "parentCommittedHeight: integer expected";
+                if (message.paraTarget != null && message.hasOwnProperty("paraTarget"))
+                    if (!$util.isInteger(message.paraTarget))
+                        return "paraTarget: integer expected";
+                if (message.paraFetchedHeight != null && message.hasOwnProperty("paraFetchedHeight"))
+                    if (!$util.isInteger(message.paraFetchedHeight))
+                        return "paraFetchedHeight: integer expected";
+                if (message.paraProcessedHeight != null && message.hasOwnProperty("paraProcessedHeight"))
+                    if (!$util.isInteger(message.paraProcessedHeight))
+                        return "paraProcessedHeight: integer expected";
+                if (message.paraCommittedHeight != null && message.hasOwnProperty("paraCommittedHeight"))
+                    if (!$util.isInteger(message.paraCommittedHeight))
+                        return "paraCommittedHeight: integer expected";
                 return null;
             };
 
@@ -3031,37 +3038,35 @@ export const prb = $root.prb = (() => {
                 case 0:
                     message.status = 0;
                     break;
-                case "S_IDLE":
+                case "S_SYHCHING":
                 case 1:
                     message.status = 1;
                     break;
-                case "S_BUSY":
+                case "S_IDLE":
                 case 2:
                     message.status = 2;
-                    break;
-                case "S_ORPHAN":
-                case 3:
-                    message.status = 3;
                     break;
                 }
                 if (object.paraId != null)
                     message.paraId = object.paraId | 0;
                 if (object.parentStartHeader != null)
                     message.parentStartHeader = object.parentStartHeader | 0;
-                if (object.parentKnownEight != null)
-                    message.parentKnownEight = object.parentKnownEight | 0;
-                if (object.parentBlobEight != null)
-                    message.parentBlobEight = object.parentBlobEight | 0;
-                if (object.parentArchivedEight != null)
-                    message.parentArchivedEight = object.parentArchivedEight | 0;
-                if (object.paraKnownEight != null)
-                    message.paraKnownEight = object.paraKnownEight | 0;
-                if (object.paraBlobEight != null)
-                    message.paraBlobEight = object.paraBlobEight | 0;
-                if (object.paraArchivedEight != null)
-                    message.paraArchivedEight = object.paraArchivedEight | 0;
-                if (object.synched != null)
-                    message.synched = Boolean(object.synched);
+                if (object.parentTarget != null)
+                    message.parentTarget = object.parentTarget | 0;
+                if (object.parentFetchedHeight != null)
+                    message.parentFetchedHeight = object.parentFetchedHeight | 0;
+                if (object.parentProcessedHeight != null)
+                    message.parentProcessedHeight = object.parentProcessedHeight | 0;
+                if (object.parentCommittedHeight != null)
+                    message.parentCommittedHeight = object.parentCommittedHeight | 0;
+                if (object.paraTarget != null)
+                    message.paraTarget = object.paraTarget | 0;
+                if (object.paraFetchedHeight != null)
+                    message.paraFetchedHeight = object.paraFetchedHeight | 0;
+                if (object.paraProcessedHeight != null)
+                    message.paraProcessedHeight = object.paraProcessedHeight | 0;
+                if (object.paraCommittedHeight != null)
+                    message.paraCommittedHeight = object.paraCommittedHeight | 0;
                 return message;
             };
 
@@ -3073,13 +3078,14 @@ export const prb = $root.prb = (() => {
                     object.status = options.enums === String ? "S_UNKNOWN" : 0;
                     object.paraId = 0;
                     object.parentStartHeader = 0;
-                    object.parentKnownEight = 0;
-                    object.parentBlobEight = 0;
-                    object.parentArchivedEight = 0;
-                    object.paraKnownEight = 0;
-                    object.paraBlobEight = 0;
-                    object.paraArchivedEight = 0;
-                    object.synched = false;
+                    object.parentTarget = 0;
+                    object.parentFetchedHeight = 0;
+                    object.parentProcessedHeight = 0;
+                    object.parentCommittedHeight = 0;
+                    object.paraTarget = 0;
+                    object.paraFetchedHeight = 0;
+                    object.paraProcessedHeight = 0;
+                    object.paraCommittedHeight = 0;
                 }
                 if (message.status != null && message.hasOwnProperty("status"))
                     object.status = options.enums === String ? $root.prb.data_provider.Status[message.status] : message.status;
@@ -3087,20 +3093,22 @@ export const prb = $root.prb = (() => {
                     object.paraId = message.paraId;
                 if (message.parentStartHeader != null && message.hasOwnProperty("parentStartHeader"))
                     object.parentStartHeader = message.parentStartHeader;
-                if (message.parentKnownEight != null && message.hasOwnProperty("parentKnownEight"))
-                    object.parentKnownEight = message.parentKnownEight;
-                if (message.parentBlobEight != null && message.hasOwnProperty("parentBlobEight"))
-                    object.parentBlobEight = message.parentBlobEight;
-                if (message.parentArchivedEight != null && message.hasOwnProperty("parentArchivedEight"))
-                    object.parentArchivedEight = message.parentArchivedEight;
-                if (message.paraKnownEight != null && message.hasOwnProperty("paraKnownEight"))
-                    object.paraKnownEight = message.paraKnownEight;
-                if (message.paraBlobEight != null && message.hasOwnProperty("paraBlobEight"))
-                    object.paraBlobEight = message.paraBlobEight;
-                if (message.paraArchivedEight != null && message.hasOwnProperty("paraArchivedEight"))
-                    object.paraArchivedEight = message.paraArchivedEight;
-                if (message.synched != null && message.hasOwnProperty("synched"))
-                    object.synched = message.synched;
+                if (message.parentTarget != null && message.hasOwnProperty("parentTarget"))
+                    object.parentTarget = message.parentTarget;
+                if (message.parentFetchedHeight != null && message.hasOwnProperty("parentFetchedHeight"))
+                    object.parentFetchedHeight = message.parentFetchedHeight;
+                if (message.parentProcessedHeight != null && message.hasOwnProperty("parentProcessedHeight"))
+                    object.parentProcessedHeight = message.parentProcessedHeight;
+                if (message.parentCommittedHeight != null && message.hasOwnProperty("parentCommittedHeight"))
+                    object.parentCommittedHeight = message.parentCommittedHeight;
+                if (message.paraTarget != null && message.hasOwnProperty("paraTarget"))
+                    object.paraTarget = message.paraTarget;
+                if (message.paraFetchedHeight != null && message.hasOwnProperty("paraFetchedHeight"))
+                    object.paraFetchedHeight = message.paraFetchedHeight;
+                if (message.paraProcessedHeight != null && message.hasOwnProperty("paraProcessedHeight"))
+                    object.paraProcessedHeight = message.paraProcessedHeight;
+                if (message.paraCommittedHeight != null && message.hasOwnProperty("paraCommittedHeight"))
+                    object.paraCommittedHeight = message.paraCommittedHeight;
                 return object;
             };
 

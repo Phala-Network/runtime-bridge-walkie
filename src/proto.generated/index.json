@@ -472,9 +472,8 @@
             "Status": {
               "values": {
                 "S_UNKNOWN": 0,
-                "S_IDLE": 1,
-                "S_BUSY": 2,
-                "S_ORPHAN": 3
+                "S_SYHCHING": 1,
+                "S_IDLE": 2
               }
             },
             "BlobType": {
@@ -498,33 +497,37 @@
                   "type": "int32",
                   "id": 3
                 },
-                "parentKnownEight": {
+                "parentTarget": {
                   "type": "int32",
                   "id": 4
                 },
-                "parentBlobEight": {
+                "parentFetchedHeight": {
                   "type": "int32",
                   "id": 5
                 },
-                "parentArchivedEight": {
+                "parentProcessedHeight": {
                   "type": "int32",
                   "id": 6
                 },
-                "paraKnownEight": {
+                "parentCommittedHeight": {
                   "type": "int32",
                   "id": 7
                 },
-                "paraBlobEight": {
+                "paraTarget": {
                   "type": "int32",
                   "id": 8
                 },
-                "paraArchivedEight": {
+                "paraFetchedHeight": {
                   "type": "int32",
                   "id": 9
                 },
-                "synched": {
-                  "type": "bool",
+                "paraProcessedHeight": {
+                  "type": "int32",
                   "id": 10
+                },
+                "paraCommittedHeight": {
+                  "type": "int32",
+                  "id": 11
                 }
               }
             },

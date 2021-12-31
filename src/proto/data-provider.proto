@@ -7,9 +7,8 @@ import "db.proto";
 
 enum Status {
   S_UNKNOWN = 0;
-  S_IDLE = 1;
-  S_BUSY = 2;
-  S_ORPHAN = 3;
+  S_SYHCHING = 1;
+  S_IDLE = 2;
 }
 
 enum BlobType {
@@ -21,18 +20,17 @@ enum BlobType {
 message Info {
   Status status = 1;
   int32 para_id = 2;
-
   int32 parent_start_header = 3;
 
-  int32 parent_known_eight = 4;
-  int32 parent_blob_eight = 5;
-  int32 parent_archived_eight = 6;
+  int32 parent_target = 4;
+  int32 parent_fetched_height = 5;
+  int32 parent_processed_height = 6;
+  int32 parent_committed_height = 7;
 
-  int32 para_known_eight = 7;
-  int32 para_blob_eight = 8;
-  int32 para_archived_eight = 9;
-
-  bool synched = 10;
+  int32 para_target = 8;
+  int32 para_fetched_height = 9;
+  int32 para_processed_height = 10;
+  int32 para_committed_height = 11;
 }
 
 message WantBlob {

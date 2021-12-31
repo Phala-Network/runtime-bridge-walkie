@@ -20,6 +20,7 @@
     "resolveJsonModule": true,
     "paths": {
       "*": [
+        "*",
         "node_modules/*",
         "src/types/*"
       ]
