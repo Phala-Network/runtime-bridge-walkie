@@ -1,24 +1,12 @@
-import { dirname, resolve } from 'path'
-import { fileURLToPath } from 'url'
-import { readFileSync } from 'fs'
+import generatedJson from './proto.generated/index.json'
 import protobuf from 'protobufjs'
 import type { prb } from './proto.generated'
-import type generatedJson from './proto.generated/index.json'
-
-const _generatedJson = JSON.parse(
-  readFileSync(
-    resolve(
-      dirname(fileURLToPath(import.meta.url)),
-      './proto.generated/index.json'
-    )
-  ).toString()
-) as typeof generatedJson
 
 export const rpcMethods =
-  _generatedJson['nested']['prb']['nested']['WalkieRpc']['methods']
+  generatedJson['nested']['prb']['nested']['WalkieRpc']['methods']
 
 export const pbRoot = protobuf.Root.fromJSON(
-  _generatedJson as protobuf.INamespace
+  generatedJson as protobuf.INamespace
 )
 
 export type RpcMethodName = keyof typeof rpcMethods
