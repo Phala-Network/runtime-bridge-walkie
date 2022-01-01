@@ -176,8 +176,9 @@ const processRpcRequest = async <R extends prb.WalkieRoles>(
   const request = requestType.decode(rawRequest.data)
   const processResult = await handler(request, connection, options)
   const responseType = pbRoot.lookupType(
-    rpcMethods[rawRequest.method as RpcMethodName].requestType
+    rpcMethods[rawRequest.method as RpcMethodName].responseType
   )
+
   return WalkieRpcResponseWrapper.encode(
     WalkieRpcResponseWrapper.create({
       createdAt: Date.now(),

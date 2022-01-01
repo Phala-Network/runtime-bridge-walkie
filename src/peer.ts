@@ -90,9 +90,7 @@ export const createPeerManager = (
       .add(async () => {
         const isConnOpen = () => (connection.stat.status as unknown) === 'OPEN'
         const dial: WalkiePeerRequester = async (method, _request) => {
-          const currConn = isConnOpen()
-            ? connection
-            : await node.dialer.connectToPeer(peerId)
+          const currConn = await node.dialer.connectToPeer(peerId)
           return request(currConn, method, _request)
         }
 
