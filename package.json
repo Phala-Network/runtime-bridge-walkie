@@ -1,6 +1,6 @@
 {
   "name": "@phala/runtime-bridge-walkie",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "dist/index.js",
   "types": "src/index.ts",
   "type": "module",
@@ -65,5 +65,11 @@
   "scripts": {
     "watch-ts": "tsc -w",
     "proto:build": "bash build_proto.sh"
-  }
+  },
+  "files": [
+    "src",
+    "dist",
+    "tsconfig.json",
+    "yarn.lock"
+  ]
 }
