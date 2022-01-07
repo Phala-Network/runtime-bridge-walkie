@@ -14,6 +14,8 @@ import type libp2p from 'libp2p'
 import WalkieRoles = prb.WalkieRoles
 import WalkieSystemInfo = prb.WalkieSystemInfo
 
+// TODO: Authentication
+
 export type WalkiePeer = {
   peer: ReturnType<PeerStore['get']>
   peerId: PeerId

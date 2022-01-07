@@ -23,6 +23,7 @@ message WalkieSystemInfo {
   WalkieRoles role = 3;
   string chain_identity = 4;
   string bridge_identity = 5;
+  AuthStatus auth = 6;
 }
 
 message WalkieRpcRequestWrapper {
@@ -48,9 +49,36 @@ message WalkieBroadcastWrapper {
   string method = 4;
 }
 
+enum AuthStatus {
+  AS_NONE = 0;
+  AS_NEED_AUTH = 1;
+  AS_GRANTED = 2;
+  AS_REJECTED = 3;
+  AS_BLOCKED = 4;
+}
+
+enum AuthType {
+  AT_NONE = 0;
+  AT_PSK = 1;
+  AT_WHITE_LIST = 2;
+}
+
+
+message AuthRequest {
+  AuthType type = 1;
+  string auth_string = 2;
+}
+
+message AuthResponse {
+    AuthStatus status = 1;
+    AuthType type = 2;
+    string peer_id = 3;
+}
+
 service WalkieRpc {
   // shared
   rpc Hello(WalkieSystemInfo) returns (WalkieSystemInfo);
+  rpc Auth(AuthRequest) returns (AuthResponse);
 
   // data_provider
   rpc GetDataProviderInfo(Empty) returns (data_provider.Info);
@@ -63,12 +91,16 @@ service WalkieRpc {
   rpc GetBlobWithToken(data_provider.GetBlob) returns (data_provider.Blob);
 
   // lifecycle_manager
-  rpc ListPool(Empty) returns (data_provider.PoolList);
-  rpc CreatePool(data_provider.CreatePool) returns (data_provider.PoolList);
-  rpc UpdatePool(data_provider.UpdatePool) returns (data_provider.PoolList);
-  rpc ListWorker(Empty) returns (data_provider.WorkerList);
-  rpc CreateWorker(data_provider.CreateWorker) returns (data_provider.WorkerList);
-  rpc UpdateWorker(data_provider.UpdateWorker) returns (data_provider.WorkerList);
+  rpc ListPool(Empty) returns (lifecycle.PoolList);
+  rpc CreatePool(lifecycle.CreatePool) returns (lifecycle.PoolList);
+  rpc UpdatePool(lifecycle.UpdatePool) returns (lifecycle.PoolList);
+  rpc ListWorker(Empty) returns (lifecycle.WorkerList);
+  rpc CreateWorker(lifecycle.CreateWorker) returns (lifecycle.WorkerList);
+  rpc UpdateWorker(lifecycle.UpdateWorker) returns (lifecycle.WorkerList);
+
+  rpc RestartWorker(lifecycle.LifecycleActionRequest) returns (WorkerStateUpdate);
+  rpc KickWorker(lifecycle.LifecycleActionRequest) returns (WorkerStateUpdate);
+  rpc GetWorkerStatus(lifecycle.LifecycleActionRequest) returns (WorkerStateUpdate);
 
   // trader
 }

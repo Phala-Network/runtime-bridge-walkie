@@ -15,6 +15,7 @@ export namespace prb {
         role?: (prb.WalkieRoles|null);
         chainIdentity?: (string|null);
         bridgeIdentity?: (string|null);
+        auth?: (prb.AuthStatus|null);
     }
 
     class WalkieSystemInfo implements IWalkieSystemInfo {
@@ -24,6 +25,7 @@ export namespace prb {
         public role: prb.WalkieRoles;
         public chainIdentity: string;
         public bridgeIdentity: string;
+        public auth: prb.AuthStatus;
         public static create(properties?: prb.IWalkieSystemInfo): prb.WalkieSystemInfo;
         public static encode(m: prb.IWalkieSystemInfo, w?: $protobuf.Writer): $protobuf.Writer;
         public static encodeDelimited(message: prb.IWalkieSystemInfo, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -111,11 +113,69 @@ export namespace prb {
         public toJSON(): { [k: string]: any };
     }
 
+    enum AuthStatus {
+        AS_NONE = 0,
+        AS_NEED_AUTH = 1,
+        AS_GRANTED = 2,
+        AS_REJECTED = 3,
+        AS_BLOCKED = 4
+    }
+
+    enum AuthType {
+        AT_NONE = 0,
+        AT_PSK = 1,
+        AT_WHITE_LIST = 2
+    }
+
+    interface IAuthRequest {
+        type?: (prb.AuthType|null);
+        authString?: (string|null);
+    }
+
+    class AuthRequest implements IAuthRequest {
+        constructor(p?: prb.IAuthRequest);
+        public type: prb.AuthType;
+        public authString: string;
+        public static create(properties?: prb.IAuthRequest): prb.AuthRequest;
+        public static encode(m: prb.IAuthRequest, w?: $protobuf.Writer): $protobuf.Writer;
+        public static encodeDelimited(message: prb.IAuthRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.AuthRequest;
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.AuthRequest;
+        public static verify(m: { [k: string]: any }): (string|null);
+        public static fromObject(d: { [k: string]: any }): prb.AuthRequest;
+        public static toObject(m: prb.AuthRequest, o?: $protobuf.IConversionOptions): { [k: string]: any };
+        public toJSON(): { [k: string]: any };
+    }
+
+    interface IAuthResponse {
+        status?: (prb.AuthStatus|null);
+        type?: (prb.AuthType|null);
+        peerId?: (string|null);
+    }
+
+    class AuthResponse implements IAuthResponse {
+        constructor(p?: prb.IAuthResponse);
+        public status: prb.AuthStatus;
+        public type: prb.AuthType;
+        public peerId: string;
+        public static create(properties?: prb.IAuthResponse): prb.AuthResponse;
+        public static encode(m: prb.IAuthResponse, w?: $protobuf.Writer): $protobuf.Writer;
+        public static encodeDelimited(message: prb.IAuthResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.AuthResponse;
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.AuthResponse;
+        public static verify(m: { [k: string]: any }): (string|null);
+        public static fromObject(d: { [k: string]: any }): prb.AuthResponse;
+        public static toObject(m: prb.AuthResponse, o?: $protobuf.IConversionOptions): { [k: string]: any };
+        public toJSON(): { [k: string]: any };
+    }
+
     class WalkieRpc extends $protobuf.rpc.Service {
         constructor(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean);
         public static create(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean): WalkieRpc;
         public hello(request: prb.IWalkieSystemInfo, callback: prb.WalkieRpc.HelloCallback): void;
         public hello(request: prb.IWalkieSystemInfo): Promise<prb.WalkieSystemInfo>;
+        public auth(request: prb.IAuthRequest, callback: prb.WalkieRpc.AuthCallback): void;
+        public auth(request: prb.IAuthRequest): Promise<prb.AuthResponse>;
         public getDataProviderInfo(request: prb.IEmpty, callback: prb.WalkieRpc.GetDataProviderInfoCallback): void;
         public getDataProviderInfo(request: prb.IEmpty): Promise<prb.data_provider.Info>;
         public getBlobByKey(request: prb.data_provider.IGetBlobByKey, callback: prb.WalkieRpc.GetBlobByKeyCallback): void;
@@ -125,22 +185,30 @@ export namespace prb {
         public getBlobWithToken(request: prb.data_provider.IGetBlob, callback: prb.WalkieRpc.GetBlobWithTokenCallback): void;
         public getBlobWithToken(request: prb.data_provider.IGetBlob): Promise<prb.data_provider.Blob>;
         public listPool(request: prb.IEmpty, callback: prb.WalkieRpc.ListPoolCallback): void;
-        public listPool(request: prb.IEmpty): Promise<prb.data_provider.PoolList>;
-        public createPool(request: prb.data_provider.ICreatePool, callback: prb.WalkieRpc.CreatePoolCallback): void;
-        public createPool(request: prb.data_provider.ICreatePool): Promise<prb.data_provider.PoolList>;
-        public updatePool(request: prb.data_provider.IUpdatePool, callback: prb.WalkieRpc.UpdatePoolCallback): void;
-        public updatePool(request: prb.data_provider.IUpdatePool): Promise<prb.data_provider.PoolList>;
+        public listPool(request: prb.IEmpty): Promise<prb.lifecycle.PoolList>;
+        public createPool(request: prb.lifecycle.ICreatePool, callback: prb.WalkieRpc.CreatePoolCallback): void;
+        public createPool(request: prb.lifecycle.ICreatePool): Promise<prb.lifecycle.PoolList>;
+        public updatePool(request: prb.lifecycle.IUpdatePool, callback: prb.WalkieRpc.UpdatePoolCallback): void;
+        public updatePool(request: prb.lifecycle.IUpdatePool): Promise<prb.lifecycle.PoolList>;
         public listWorker(request: prb.IEmpty, callback: prb.WalkieRpc.ListWorkerCallback): void;
-        public listWorker(request: prb.IEmpty): Promise<prb.data_provider.WorkerList>;
-        public createWorker(request: prb.data_provider.ICreateWorker, callback: prb.WalkieRpc.CreateWorkerCallback): void;
-        public createWorker(request: prb.data_provider.ICreateWorker): Promise<prb.data_provider.WorkerList>;
-        public updateWorker(request: prb.data_provider.IUpdateWorker, callback: prb.WalkieRpc.UpdateWorkerCallback): void;
-        public updateWorker(request: prb.data_provider.IUpdateWorker): Promise<prb.data_provider.WorkerList>;
+        public listWorker(request: prb.IEmpty): Promise<prb.lifecycle.WorkerList>;
+        public createWorker(request: prb.lifecycle.ICreateWorker, callback: prb.WalkieRpc.CreateWorkerCallback): void;
+        public createWorker(request: prb.lifecycle.ICreateWorker): Promise<prb.lifecycle.WorkerList>;
+        public updateWorker(request: prb.lifecycle.IUpdateWorker, callback: prb.WalkieRpc.UpdateWorkerCallback): void;
+        public updateWorker(request: prb.lifecycle.IUpdateWorker): Promise<prb.lifecycle.WorkerList>;
+        public restartWorker(request: prb.lifecycle.ILifecycleActionRequest, callback: prb.WalkieRpc.RestartWorkerCallback): void;
+        public restartWorker(request: prb.lifecycle.ILifecycleActionRequest): Promise<prb.WorkerStateUpdate>;
+        public kickWorker(request: prb.lifecycle.ILifecycleActionRequest, callback: prb.WalkieRpc.KickWorkerCallback): void;
+        public kickWorker(request: prb.lifecycle.ILifecycleActionRequest): Promise<prb.WorkerStateUpdate>;
+        public getWorkerStatus(request: prb.lifecycle.ILifecycleActionRequest, callback: prb.WalkieRpc.GetWorkerStatusCallback): void;
+        public getWorkerStatus(request: prb.lifecycle.ILifecycleActionRequest): Promise<prb.WorkerStateUpdate>;
     }
 
     namespace WalkieRpc {
 
         type HelloCallback = (error: (Error|null), response?: prb.WalkieSystemInfo) => void;
+
+        type AuthCallback = (error: (Error|null), response?: prb.AuthResponse) => void;
 
         type GetDataProviderInfoCallback = (error: (Error|null), response?: prb.data_provider.Info) => void;
 
@@ -150,17 +218,23 @@ export namespace prb {
 
         type GetBlobWithTokenCallback = (error: (Error|null), response?: prb.data_provider.Blob) => void;
 
-        type ListPoolCallback = (error: (Error|null), response?: prb.data_provider.PoolList) => void;
+        type ListPoolCallback = (error: (Error|null), response?: prb.lifecycle.PoolList) => void;
 
-        type CreatePoolCallback = (error: (Error|null), response?: prb.data_provider.PoolList) => void;
+        type CreatePoolCallback = (error: (Error|null), response?: prb.lifecycle.PoolList) => void;
 
-        type UpdatePoolCallback = (error: (Error|null), response?: prb.data_provider.PoolList) => void;
+        type UpdatePoolCallback = (error: (Error|null), response?: prb.lifecycle.PoolList) => void;
 
-        type ListWorkerCallback = (error: (Error|null), response?: prb.data_provider.WorkerList) => void;
+        type ListWorkerCallback = (error: (Error|null), response?: prb.lifecycle.WorkerList) => void;
 
-        type CreateWorkerCallback = (error: (Error|null), response?: prb.data_provider.WorkerList) => void;
+        type CreateWorkerCallback = (error: (Error|null), response?: prb.lifecycle.WorkerList) => void;
 
-        type UpdateWorkerCallback = (error: (Error|null), response?: prb.data_provider.WorkerList) => void;
+        type UpdateWorkerCallback = (error: (Error|null), response?: prb.lifecycle.WorkerList) => void;
+
+        type RestartWorkerCallback = (error: (Error|null), response?: prb.WorkerStateUpdate) => void;
+
+        type KickWorkerCallback = (error: (Error|null), response?: prb.WorkerStateUpdate) => void;
+
+        type GetWorkerStatusCallback = (error: (Error|null), response?: prb.WorkerStateUpdate) => void;
     }
 
     class WalkieBroadcast extends $protobuf.rpc.Service {
@@ -705,160 +779,6 @@ export namespace prb {
             public static toObject(m: prb.data_provider.RawBlob, o?: $protobuf.IConversionOptions): { [k: string]: any };
             public toJSON(): { [k: string]: any };
         }
-
-        interface ICreatePool {
-            pools?: (prb.db.IPool[]|null);
-        }
-
-        class CreatePool implements ICreatePool {
-            constructor(p?: prb.data_provider.ICreatePool);
-            public pools: prb.db.IPool[];
-            public static create(properties?: prb.data_provider.ICreatePool): prb.data_provider.CreatePool;
-            public static encode(m: prb.data_provider.ICreatePool, w?: $protobuf.Writer): $protobuf.Writer;
-            public static encodeDelimited(message: prb.data_provider.ICreatePool, writer?: $protobuf.Writer): $protobuf.Writer;
-            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.data_provider.CreatePool;
-            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.data_provider.CreatePool;
-            public static verify(m: { [k: string]: any }): (string|null);
-            public static fromObject(d: { [k: string]: any }): prb.data_provider.CreatePool;
-            public static toObject(m: prb.data_provider.CreatePool, o?: $protobuf.IConversionOptions): { [k: string]: any };
-            public toJSON(): { [k: string]: any };
-        }
-
-        interface IUpdatePool {
-            items?: (prb.data_provider.UpdatePool.IItem[]|null);
-        }
-
-        class UpdatePool implements IUpdatePool {
-            constructor(p?: prb.data_provider.IUpdatePool);
-            public items: prb.data_provider.UpdatePool.IItem[];
-            public static create(properties?: prb.data_provider.IUpdatePool): prb.data_provider.UpdatePool;
-            public static encode(m: prb.data_provider.IUpdatePool, w?: $protobuf.Writer): $protobuf.Writer;
-            public static encodeDelimited(message: prb.data_provider.IUpdatePool, writer?: $protobuf.Writer): $protobuf.Writer;
-            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.data_provider.UpdatePool;
-            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.data_provider.UpdatePool;
-            public static verify(m: { [k: string]: any }): (string|null);
-            public static fromObject(d: { [k: string]: any }): prb.data_provider.UpdatePool;
-            public static toObject(m: prb.data_provider.UpdatePool, o?: $protobuf.IConversionOptions): { [k: string]: any };
-            public toJSON(): { [k: string]: any };
-        }
-
-        namespace UpdatePool {
-
-            interface IItem {
-                id?: (prb.IPoolOrWorkerQueryIdentity|null);
-                pool?: (prb.db.IPool|null);
-            }
-
-            class Item implements IItem {
-                constructor(p?: prb.data_provider.UpdatePool.IItem);
-                public id?: (prb.IPoolOrWorkerQueryIdentity|null);
-                public pool?: (prb.db.IPool|null);
-                public static create(properties?: prb.data_provider.UpdatePool.IItem): prb.data_provider.UpdatePool.Item;
-                public static encode(m: prb.data_provider.UpdatePool.IItem, w?: $protobuf.Writer): $protobuf.Writer;
-                public static encodeDelimited(message: prb.data_provider.UpdatePool.IItem, writer?: $protobuf.Writer): $protobuf.Writer;
-                public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.data_provider.UpdatePool.Item;
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.data_provider.UpdatePool.Item;
-                public static verify(m: { [k: string]: any }): (string|null);
-                public static fromObject(d: { [k: string]: any }): prb.data_provider.UpdatePool.Item;
-                public static toObject(m: prb.data_provider.UpdatePool.Item, o?: $protobuf.IConversionOptions): { [k: string]: any };
-                public toJSON(): { [k: string]: any };
-            }
-        }
-
-        interface ICreateWorker {
-            workers?: (prb.db.IWorker[]|null);
-        }
-
-        class CreateWorker implements ICreateWorker {
-            constructor(p?: prb.data_provider.ICreateWorker);
-            public workers: prb.db.IWorker[];
-            public static create(properties?: prb.data_provider.ICreateWorker): prb.data_provider.CreateWorker;
-            public static encode(m: prb.data_provider.ICreateWorker, w?: $protobuf.Writer): $protobuf.Writer;
-            public static encodeDelimited(message: prb.data_provider.ICreateWorker, writer?: $protobuf.Writer): $protobuf.Writer;
-            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.data_provider.CreateWorker;
-            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.data_provider.CreateWorker;
-            public static verify(m: { [k: string]: any }): (string|null);
-            public static fromObject(d: { [k: string]: any }): prb.data_provider.CreateWorker;
-            public static toObject(m: prb.data_provider.CreateWorker, o?: $protobuf.IConversionOptions): { [k: string]: any };
-            public toJSON(): { [k: string]: any };
-        }
-
-        interface IUpdateWorker {
-            items?: (prb.data_provider.UpdateWorker.IItem[]|null);
-        }
-
-        class UpdateWorker implements IUpdateWorker {
-            constructor(p?: prb.data_provider.IUpdateWorker);
-            public items: prb.data_provider.UpdateWorker.IItem[];
-            public static create(properties?: prb.data_provider.IUpdateWorker): prb.data_provider.UpdateWorker;
-            public static encode(m: prb.data_provider.IUpdateWorker, w?: $protobuf.Writer): $protobuf.Writer;
-            public static encodeDelimited(message: prb.data_provider.IUpdateWorker, writer?: $protobuf.Writer): $protobuf.Writer;
-            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.data_provider.UpdateWorker;
-            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.data_provider.UpdateWorker;
-            public static verify(m: { [k: string]: any }): (string|null);
-            public static fromObject(d: { [k: string]: any }): prb.data_provider.UpdateWorker;
-            public static toObject(m: prb.data_provider.UpdateWorker, o?: $protobuf.IConversionOptions): { [k: string]: any };
-            public toJSON(): { [k: string]: any };
-        }
-
-        namespace UpdateWorker {
-
-            interface IItem {
-                id?: (prb.IPoolOrWorkerQueryIdentity|null);
-                worker?: (prb.db.IWorker|null);
-            }
-
-            class Item implements IItem {
-                constructor(p?: prb.data_provider.UpdateWorker.IItem);
-                public id?: (prb.IPoolOrWorkerQueryIdentity|null);
-                public worker?: (prb.db.IWorker|null);
-                public static create(properties?: prb.data_provider.UpdateWorker.IItem): prb.data_provider.UpdateWorker.Item;
-                public static encode(m: prb.data_provider.UpdateWorker.IItem, w?: $protobuf.Writer): $protobuf.Writer;
-                public static encodeDelimited(message: prb.data_provider.UpdateWorker.IItem, writer?: $protobuf.Writer): $protobuf.Writer;
-                public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.data_provider.UpdateWorker.Item;
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.data_provider.UpdateWorker.Item;
-                public static verify(m: { [k: string]: any }): (string|null);
-                public static fromObject(d: { [k: string]: any }): prb.data_provider.UpdateWorker.Item;
-                public static toObject(m: prb.data_provider.UpdateWorker.Item, o?: $protobuf.IConversionOptions): { [k: string]: any };
-                public toJSON(): { [k: string]: any };
-            }
-        }
-
-        interface IPoolList {
-            pools?: (prb.db.IPool[]|null);
-        }
-
-        class PoolList implements IPoolList {
-            constructor(p?: prb.data_provider.IPoolList);
-            public pools: prb.db.IPool[];
-            public static create(properties?: prb.data_provider.IPoolList): prb.data_provider.PoolList;
-            public static encode(m: prb.data_provider.IPoolList, w?: $protobuf.Writer): $protobuf.Writer;
-            public static encodeDelimited(message: prb.data_provider.IPoolList, writer?: $protobuf.Writer): $protobuf.Writer;
-            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.data_provider.PoolList;
-            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.data_provider.PoolList;
-            public static verify(m: { [k: string]: any }): (string|null);
-            public static fromObject(d: { [k: string]: any }): prb.data_provider.PoolList;
-            public static toObject(m: prb.data_provider.PoolList, o?: $protobuf.IConversionOptions): { [k: string]: any };
-            public toJSON(): { [k: string]: any };
-        }
-
-        interface IWorkerList {
-            workers?: (prb.db.IWorker[]|null);
-        }
-
-        class WorkerList implements IWorkerList {
-            constructor(p?: prb.data_provider.IWorkerList);
-            public workers: prb.db.IWorker[];
-            public static create(properties?: prb.data_provider.IWorkerList): prb.data_provider.WorkerList;
-            public static encode(m: prb.data_provider.IWorkerList, w?: $protobuf.Writer): $protobuf.Writer;
-            public static encodeDelimited(message: prb.data_provider.IWorkerList, writer?: $protobuf.Writer): $protobuf.Writer;
-            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.data_provider.WorkerList;
-            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.data_provider.WorkerList;
-            public static verify(m: { [k: string]: any }): (string|null);
-            public static fromObject(d: { [k: string]: any }): prb.data_provider.WorkerList;
-            public static toObject(m: prb.data_provider.WorkerList, o?: $protobuf.IConversionOptions): { [k: string]: any };
-            public toJSON(): { [k: string]: any };
-        }
     }
 
     interface IWorkerState {
@@ -970,101 +890,216 @@ export namespace prb {
         public toJSON(): { [k: string]: any };
     }
 
-    interface ILifecycleManagerStateUpdate {
-        hostname?: (string|null);
-        pools?: (prb.db.IPool[]|null);
-        workers?: (prb.db.IWorker[]|null);
-    }
+    namespace lifecycle {
 
-    class LifecycleManagerStateUpdate implements ILifecycleManagerStateUpdate {
-        constructor(p?: prb.ILifecycleManagerStateUpdate);
-        public hostname: string;
-        public pools: prb.db.IPool[];
-        public workers: prb.db.IWorker[];
-        public static create(properties?: prb.ILifecycleManagerStateUpdate): prb.LifecycleManagerStateUpdate;
-        public static encode(m: prb.ILifecycleManagerStateUpdate, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.ILifecycleManagerStateUpdate, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.LifecycleManagerStateUpdate;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.LifecycleManagerStateUpdate;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.LifecycleManagerStateUpdate;
-        public static toObject(m: prb.LifecycleManagerStateUpdate, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
-    }
+        interface ILifecycleActionRequest {
+            id?: (prb.IPoolOrWorkerQueryIdentity|null);
+            reason?: (string|null);
+        }
 
-    interface ICallOnlineLifecycleManager {
-        isResponse?: (boolean|null);
-        hostname?: (string|null);
-    }
+        class LifecycleActionRequest implements ILifecycleActionRequest {
+            constructor(p?: prb.lifecycle.ILifecycleActionRequest);
+            public id?: (prb.IPoolOrWorkerQueryIdentity|null);
+            public reason: string;
+            public static create(properties?: prb.lifecycle.ILifecycleActionRequest): prb.lifecycle.LifecycleActionRequest;
+            public static encode(m: prb.lifecycle.ILifecycleActionRequest, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.ILifecycleActionRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.LifecycleActionRequest;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.LifecycleActionRequest;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.LifecycleActionRequest;
+            public static toObject(m: prb.lifecycle.LifecycleActionRequest, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
 
-    class CallOnlineLifecycleManager implements ICallOnlineLifecycleManager {
-        constructor(p?: prb.ICallOnlineLifecycleManager);
-        public isResponse: boolean;
-        public hostname: string;
-        public static create(properties?: prb.ICallOnlineLifecycleManager): prb.CallOnlineLifecycleManager;
-        public static encode(m: prb.ICallOnlineLifecycleManager, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.ICallOnlineLifecycleManager, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.CallOnlineLifecycleManager;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.CallOnlineLifecycleManager;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.CallOnlineLifecycleManager;
-        public static toObject(m: prb.CallOnlineLifecycleManager, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
-    }
+        interface IRequestStartWorkerLifecycle {
+            requests?: (prb.lifecycle.ILifecycleActionRequest[]|null);
+        }
 
-    interface ILifecycleActionRequest {
-        id?: (prb.IPoolOrWorkerQueryIdentity|null);
-        reason?: (string|null);
-    }
+        class RequestStartWorkerLifecycle implements IRequestStartWorkerLifecycle {
+            constructor(p?: prb.lifecycle.IRequestStartWorkerLifecycle);
+            public requests: prb.lifecycle.ILifecycleActionRequest[];
+            public static create(properties?: prb.lifecycle.IRequestStartWorkerLifecycle): prb.lifecycle.RequestStartWorkerLifecycle;
+            public static encode(m: prb.lifecycle.IRequestStartWorkerLifecycle, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.IRequestStartWorkerLifecycle, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.RequestStartWorkerLifecycle;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.RequestStartWorkerLifecycle;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.RequestStartWorkerLifecycle;
+            public static toObject(m: prb.lifecycle.RequestStartWorkerLifecycle, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
 
-    class LifecycleActionRequest implements ILifecycleActionRequest {
-        constructor(p?: prb.ILifecycleActionRequest);
-        public id?: (prb.IPoolOrWorkerQueryIdentity|null);
-        public reason: string;
-        public static create(properties?: prb.ILifecycleActionRequest): prb.LifecycleActionRequest;
-        public static encode(m: prb.ILifecycleActionRequest, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.ILifecycleActionRequest, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.LifecycleActionRequest;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.LifecycleActionRequest;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.LifecycleActionRequest;
-        public static toObject(m: prb.LifecycleActionRequest, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
-    }
+        interface IRequestKickWorker {
+            requests?: (prb.lifecycle.ILifecycleActionRequest[]|null);
+        }
 
-    interface IRequestStartWorkerLifecycle {
-        requests?: (prb.ILifecycleActionRequest[]|null);
-    }
+        class RequestKickWorker implements IRequestKickWorker {
+            constructor(p?: prb.lifecycle.IRequestKickWorker);
+            public requests: prb.lifecycle.ILifecycleActionRequest[];
+            public static create(properties?: prb.lifecycle.IRequestKickWorker): prb.lifecycle.RequestKickWorker;
+            public static encode(m: prb.lifecycle.IRequestKickWorker, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.IRequestKickWorker, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.RequestKickWorker;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.RequestKickWorker;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.RequestKickWorker;
+            public static toObject(m: prb.lifecycle.RequestKickWorker, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
 
-    class RequestStartWorkerLifecycle implements IRequestStartWorkerLifecycle {
-        constructor(p?: prb.IRequestStartWorkerLifecycle);
-        public requests: prb.ILifecycleActionRequest[];
-        public static create(properties?: prb.IRequestStartWorkerLifecycle): prb.RequestStartWorkerLifecycle;
-        public static encode(m: prb.IRequestStartWorkerLifecycle, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.IRequestStartWorkerLifecycle, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.RequestStartWorkerLifecycle;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.RequestStartWorkerLifecycle;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.RequestStartWorkerLifecycle;
-        public static toObject(m: prb.RequestStartWorkerLifecycle, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
-    }
+        interface ICreatePool {
+            pools?: (prb.db.IPool[]|null);
+        }
 
-    interface IRequestKickWorker {
-        requests?: (prb.ILifecycleActionRequest[]|null);
-    }
+        class CreatePool implements ICreatePool {
+            constructor(p?: prb.lifecycle.ICreatePool);
+            public pools: prb.db.IPool[];
+            public static create(properties?: prb.lifecycle.ICreatePool): prb.lifecycle.CreatePool;
+            public static encode(m: prb.lifecycle.ICreatePool, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.ICreatePool, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.CreatePool;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.CreatePool;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.CreatePool;
+            public static toObject(m: prb.lifecycle.CreatePool, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
 
-    class RequestKickWorker implements IRequestKickWorker {
-        constructor(p?: prb.IRequestKickWorker);
-        public requests: prb.ILifecycleActionRequest[];
-        public static create(properties?: prb.IRequestKickWorker): prb.RequestKickWorker;
-        public static encode(m: prb.IRequestKickWorker, w?: $protobuf.Writer): $protobuf.Writer;
-        public static encodeDelimited(message: prb.IRequestKickWorker, writer?: $protobuf.Writer): $protobuf.Writer;
-        public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.RequestKickWorker;
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.RequestKickWorker;
-        public static verify(m: { [k: string]: any }): (string|null);
-        public static fromObject(d: { [k: string]: any }): prb.RequestKickWorker;
-        public static toObject(m: prb.RequestKickWorker, o?: $protobuf.IConversionOptions): { [k: string]: any };
-        public toJSON(): { [k: string]: any };
+        interface IUpdatePool {
+            items?: (prb.lifecycle.UpdatePool.IItem[]|null);
+        }
+
+        class UpdatePool implements IUpdatePool {
+            constructor(p?: prb.lifecycle.IUpdatePool);
+            public items: prb.lifecycle.UpdatePool.IItem[];
+            public static create(properties?: prb.lifecycle.IUpdatePool): prb.lifecycle.UpdatePool;
+            public static encode(m: prb.lifecycle.IUpdatePool, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.IUpdatePool, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.UpdatePool;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.UpdatePool;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.UpdatePool;
+            public static toObject(m: prb.lifecycle.UpdatePool, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
+        namespace UpdatePool {
+
+            interface IItem {
+                id?: (prb.IPoolOrWorkerQueryIdentity|null);
+                pool?: (prb.db.IPool|null);
+            }
+
+            class Item implements IItem {
+                constructor(p?: prb.lifecycle.UpdatePool.IItem);
+                public id?: (prb.IPoolOrWorkerQueryIdentity|null);
+                public pool?: (prb.db.IPool|null);
+                public static create(properties?: prb.lifecycle.UpdatePool.IItem): prb.lifecycle.UpdatePool.Item;
+                public static encode(m: prb.lifecycle.UpdatePool.IItem, w?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: prb.lifecycle.UpdatePool.IItem, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.UpdatePool.Item;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.UpdatePool.Item;
+                public static verify(m: { [k: string]: any }): (string|null);
+                public static fromObject(d: { [k: string]: any }): prb.lifecycle.UpdatePool.Item;
+                public static toObject(m: prb.lifecycle.UpdatePool.Item, o?: $protobuf.IConversionOptions): { [k: string]: any };
+                public toJSON(): { [k: string]: any };
+            }
+        }
+
+        interface ICreateWorker {
+            workers?: (prb.db.IWorker[]|null);
+        }
+
+        class CreateWorker implements ICreateWorker {
+            constructor(p?: prb.lifecycle.ICreateWorker);
+            public workers: prb.db.IWorker[];
+            public static create(properties?: prb.lifecycle.ICreateWorker): prb.lifecycle.CreateWorker;
+            public static encode(m: prb.lifecycle.ICreateWorker, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.ICreateWorker, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.CreateWorker;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.CreateWorker;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.CreateWorker;
+            public static toObject(m: prb.lifecycle.CreateWorker, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
+        interface IUpdateWorker {
+            items?: (prb.lifecycle.UpdateWorker.IItem[]|null);
+        }
+
+        class UpdateWorker implements IUpdateWorker {
+            constructor(p?: prb.lifecycle.IUpdateWorker);
+            public items: prb.lifecycle.UpdateWorker.IItem[];
+            public static create(properties?: prb.lifecycle.IUpdateWorker): prb.lifecycle.UpdateWorker;
+            public static encode(m: prb.lifecycle.IUpdateWorker, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.IUpdateWorker, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.UpdateWorker;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.UpdateWorker;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.UpdateWorker;
+            public static toObject(m: prb.lifecycle.UpdateWorker, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
+        namespace UpdateWorker {
+
+            interface IItem {
+                id?: (prb.IPoolOrWorkerQueryIdentity|null);
+                worker?: (prb.db.IWorker|null);
+            }
+
+            class Item implements IItem {
+                constructor(p?: prb.lifecycle.UpdateWorker.IItem);
+                public id?: (prb.IPoolOrWorkerQueryIdentity|null);
+                public worker?: (prb.db.IWorker|null);
+                public static create(properties?: prb.lifecycle.UpdateWorker.IItem): prb.lifecycle.UpdateWorker.Item;
+                public static encode(m: prb.lifecycle.UpdateWorker.IItem, w?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: prb.lifecycle.UpdateWorker.IItem, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.UpdateWorker.Item;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.UpdateWorker.Item;
+                public static verify(m: { [k: string]: any }): (string|null);
+                public static fromObject(d: { [k: string]: any }): prb.lifecycle.UpdateWorker.Item;
+                public static toObject(m: prb.lifecycle.UpdateWorker.Item, o?: $protobuf.IConversionOptions): { [k: string]: any };
+                public toJSON(): { [k: string]: any };
+            }
+        }
+
+        interface IPoolList {
+            pools?: (prb.db.IPool[]|null);
+        }
+
+        class PoolList implements IPoolList {
+            constructor(p?: prb.lifecycle.IPoolList);
+            public pools: prb.db.IPool[];
+            public static create(properties?: prb.lifecycle.IPoolList): prb.lifecycle.PoolList;
+            public static encode(m: prb.lifecycle.IPoolList, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.IPoolList, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.PoolList;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.PoolList;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.PoolList;
+            public static toObject(m: prb.lifecycle.PoolList, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
+        interface IWorkerList {
+            workers?: (prb.db.IWorker[]|null);
+        }
+
+        class WorkerList implements IWorkerList {
+            constructor(p?: prb.lifecycle.IWorkerList);
+            public workers: prb.db.IWorker[];
+            public static create(properties?: prb.lifecycle.IWorkerList): prb.lifecycle.WorkerList;
+            public static encode(m: prb.lifecycle.IWorkerList, w?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: prb.lifecycle.IWorkerList, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(r: ($protobuf.Reader|Uint8Array), l?: number): prb.lifecycle.WorkerList;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): prb.lifecycle.WorkerList;
+            public static verify(m: { [k: string]: any }): (string|null);
+            public static fromObject(d: { [k: string]: any }): prb.lifecycle.WorkerList;
+            public static toObject(m: prb.lifecycle.WorkerList, o?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
     }
 }

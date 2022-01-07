@@ -1,21 +1,10 @@
 syntax = "proto3";
 
-package prb;
+package prb.lifecycle;
 
 import "worker.proto";
 import "db.proto";
 
-message LifecycleManagerStateUpdate {
-  string hostname = 1;
-  // following metadata are full-update, DO BUILD YOUR OWN worker index locally!
-  repeated db.Pool pools = 2;
-  repeated db.Worker workers = 3;
-}
-
-message CallOnlineLifecycleManager {
-  bool is_response = 1;
-  string hostname = 2;
-}
 
 message LifecycleActionRequest {
   PoolOrWorkerQueryIdentity id = 1;
@@ -28,4 +17,45 @@ message RequestStartWorkerLifecycle {
 
 message RequestKickWorker {
   repeated LifecycleActionRequest requests = 1;
+}
+
+
+message CreatePool {
+  // explicitly setting uuid will be ignored.
+  repeated db.Pool pools = 1;
+}
+
+message UpdatePool {
+  message Item {
+    PoolOrWorkerQueryIdentity id = 1;
+    // full value needed.
+    // to delete, set `deleted` to true.
+    // changes to `uuid` will be ignored.
+    db.Pool pool = 2;
+  }
+  repeated Item items = 1;
+}
+
+message CreateWorker {
+  // explicitly setting uuid will be ignored.
+  repeated db.Worker workers = 1;
+}
+
+message UpdateWorker {
+  message Item {
+    PoolOrWorkerQueryIdentity id = 1;
+    // full value needed.
+    // to delete, set `deleted` to true.
+    // changes to `uuid` will be ignored.
+    db.Worker worker = 2;
+  }
+  repeated Item items = 1;
+}
+
+message PoolList {
+  repeated db.Pool pools = 1;
+}
+
+message WorkerList {
+  repeated db.Worker workers = 1;
 }

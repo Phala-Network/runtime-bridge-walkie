@@ -33,6 +33,7 @@ export const prb = $root.prb = (() => {
         WalkieSystemInfo.prototype.role = 0;
         WalkieSystemInfo.prototype.chainIdentity = "";
         WalkieSystemInfo.prototype.bridgeIdentity = "";
+        WalkieSystemInfo.prototype.auth = 0;
 
         WalkieSystemInfo.create = function create(properties) {
             return new WalkieSystemInfo(properties);
@@ -51,6 +52,8 @@ export const prb = $root.prb = (() => {
                 writer.uint32(34).string(message.chainIdentity);
             if (message.bridgeIdentity != null && Object.hasOwnProperty.call(message, "bridgeIdentity"))
                 writer.uint32(42).string(message.bridgeIdentity);
+            if (message.auth != null && Object.hasOwnProperty.call(message, "auth"))
+                writer.uint32(48).int32(message.auth);
             return writer;
         };
 
@@ -79,6 +82,9 @@ export const prb = $root.prb = (() => {
                     break;
                 case 5:
                     message.bridgeIdentity = reader.string();
+                    break;
+                case 6:
+                    message.auth = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -120,6 +126,17 @@ export const prb = $root.prb = (() => {
             if (message.bridgeIdentity != null && message.hasOwnProperty("bridgeIdentity"))
                 if (!$util.isString(message.bridgeIdentity))
                     return "bridgeIdentity: string expected";
+            if (message.auth != null && message.hasOwnProperty("auth"))
+                switch (message.auth) {
+                default:
+                    return "auth: enum value expected";
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    break;
+                }
             return null;
         };
 
@@ -157,6 +174,28 @@ export const prb = $root.prb = (() => {
                 message.chainIdentity = String(object.chainIdentity);
             if (object.bridgeIdentity != null)
                 message.bridgeIdentity = String(object.bridgeIdentity);
+            switch (object.auth) {
+            case "AS_NONE":
+            case 0:
+                message.auth = 0;
+                break;
+            case "AS_NEED_AUTH":
+            case 1:
+                message.auth = 1;
+                break;
+            case "AS_GRANTED":
+            case 2:
+                message.auth = 2;
+                break;
+            case "AS_REJECTED":
+            case 3:
+                message.auth = 3;
+                break;
+            case "AS_BLOCKED":
+            case 4:
+                message.auth = 4;
+                break;
+            }
             return message;
         };
 
@@ -170,6 +209,7 @@ export const prb = $root.prb = (() => {
                 object.role = options.enums === String ? "WR_CLIENT" : 0;
                 object.chainIdentity = "";
                 object.bridgeIdentity = "";
+                object.auth = options.enums === String ? "AS_NONE" : 0;
             }
             if (message.hostname != null && message.hasOwnProperty("hostname"))
                 object.hostname = message.hostname;
@@ -181,6 +221,8 @@ export const prb = $root.prb = (() => {
                 object.chainIdentity = message.chainIdentity;
             if (message.bridgeIdentity != null && message.hasOwnProperty("bridgeIdentity"))
                 object.bridgeIdentity = message.bridgeIdentity;
+            if (message.auth != null && message.hasOwnProperty("auth"))
+                object.auth = options.enums === String ? $root.prb.AuthStatus[message.auth] : message.auth;
             return object;
         };
 
@@ -683,6 +725,306 @@ export const prb = $root.prb = (() => {
         return WalkieBroadcastWrapper;
     })();
 
+    prb.AuthStatus = (function() {
+        const valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[0] = "AS_NONE"] = 0;
+        values[valuesById[1] = "AS_NEED_AUTH"] = 1;
+        values[valuesById[2] = "AS_GRANTED"] = 2;
+        values[valuesById[3] = "AS_REJECTED"] = 3;
+        values[valuesById[4] = "AS_BLOCKED"] = 4;
+        return values;
+    })();
+
+    prb.AuthType = (function() {
+        const valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[0] = "AT_NONE"] = 0;
+        values[valuesById[1] = "AT_PSK"] = 1;
+        values[valuesById[2] = "AT_WHITE_LIST"] = 2;
+        return values;
+    })();
+
+    prb.AuthRequest = (function() {
+
+        function AuthRequest(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        AuthRequest.prototype.type = 0;
+        AuthRequest.prototype.authString = "";
+
+        AuthRequest.create = function create(properties) {
+            return new AuthRequest(properties);
+        };
+
+        AuthRequest.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                writer.uint32(8).int32(message.type);
+            if (message.authString != null && Object.hasOwnProperty.call(message, "authString"))
+                writer.uint32(18).string(message.authString);
+            return writer;
+        };
+
+        AuthRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        AuthRequest.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.AuthRequest();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.type = reader.int32();
+                    break;
+                case 2:
+                    message.authString = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        AuthRequest.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        AuthRequest.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.type != null && message.hasOwnProperty("type"))
+                switch (message.type) {
+                default:
+                    return "type: enum value expected";
+                case 0:
+                case 1:
+                case 2:
+                    break;
+                }
+            if (message.authString != null && message.hasOwnProperty("authString"))
+                if (!$util.isString(message.authString))
+                    return "authString: string expected";
+            return null;
+        };
+
+        AuthRequest.fromObject = function fromObject(object) {
+            if (object instanceof $root.prb.AuthRequest)
+                return object;
+            let message = new $root.prb.AuthRequest();
+            switch (object.type) {
+            case "AT_NONE":
+            case 0:
+                message.type = 0;
+                break;
+            case "AT_PSK":
+            case 1:
+                message.type = 1;
+                break;
+            case "AT_WHITE_LIST":
+            case 2:
+                message.type = 2;
+                break;
+            }
+            if (object.authString != null)
+                message.authString = String(object.authString);
+            return message;
+        };
+
+        AuthRequest.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults) {
+                object.type = options.enums === String ? "AT_NONE" : 0;
+                object.authString = "";
+            }
+            if (message.type != null && message.hasOwnProperty("type"))
+                object.type = options.enums === String ? $root.prb.AuthType[message.type] : message.type;
+            if (message.authString != null && message.hasOwnProperty("authString"))
+                object.authString = message.authString;
+            return object;
+        };
+
+        AuthRequest.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return AuthRequest;
+    })();
+
+    prb.AuthResponse = (function() {
+
+        function AuthResponse(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        AuthResponse.prototype.status = 0;
+        AuthResponse.prototype.type = 0;
+        AuthResponse.prototype.peerId = "";
+
+        AuthResponse.create = function create(properties) {
+            return new AuthResponse(properties);
+        };
+
+        AuthResponse.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
+                writer.uint32(8).int32(message.status);
+            if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                writer.uint32(16).int32(message.type);
+            if (message.peerId != null && Object.hasOwnProperty.call(message, "peerId"))
+                writer.uint32(26).string(message.peerId);
+            return writer;
+        };
+
+        AuthResponse.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        AuthResponse.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.AuthResponse();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.status = reader.int32();
+                    break;
+                case 2:
+                    message.type = reader.int32();
+                    break;
+                case 3:
+                    message.peerId = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        AuthResponse.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        AuthResponse.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.status != null && message.hasOwnProperty("status"))
+                switch (message.status) {
+                default:
+                    return "status: enum value expected";
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    break;
+                }
+            if (message.type != null && message.hasOwnProperty("type"))
+                switch (message.type) {
+                default:
+                    return "type: enum value expected";
+                case 0:
+                case 1:
+                case 2:
+                    break;
+                }
+            if (message.peerId != null && message.hasOwnProperty("peerId"))
+                if (!$util.isString(message.peerId))
+                    return "peerId: string expected";
+            return null;
+        };
+
+        AuthResponse.fromObject = function fromObject(object) {
+            if (object instanceof $root.prb.AuthResponse)
+                return object;
+            let message = new $root.prb.AuthResponse();
+            switch (object.status) {
+            case "AS_NONE":
+            case 0:
+                message.status = 0;
+                break;
+            case "AS_NEED_AUTH":
+            case 1:
+                message.status = 1;
+                break;
+            case "AS_GRANTED":
+            case 2:
+                message.status = 2;
+                break;
+            case "AS_REJECTED":
+            case 3:
+                message.status = 3;
+                break;
+            case "AS_BLOCKED":
+            case 4:
+                message.status = 4;
+                break;
+            }
+            switch (object.type) {
+            case "AT_NONE":
+            case 0:
+                message.type = 0;
+                break;
+            case "AT_PSK":
+            case 1:
+                message.type = 1;
+                break;
+            case "AT_WHITE_LIST":
+            case 2:
+                message.type = 2;
+                break;
+            }
+            if (object.peerId != null)
+                message.peerId = String(object.peerId);
+            return message;
+        };
+
+        AuthResponse.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults) {
+                object.status = options.enums === String ? "AS_NONE" : 0;
+                object.type = options.enums === String ? "AT_NONE" : 0;
+                object.peerId = "";
+            }
+            if (message.status != null && message.hasOwnProperty("status"))
+                object.status = options.enums === String ? $root.prb.AuthStatus[message.status] : message.status;
+            if (message.type != null && message.hasOwnProperty("type"))
+                object.type = options.enums === String ? $root.prb.AuthType[message.type] : message.type;
+            if (message.peerId != null && message.hasOwnProperty("peerId"))
+                object.peerId = message.peerId;
+            return object;
+        };
+
+        AuthResponse.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return AuthResponse;
+    })();
+
     prb.WalkieRpc = (function() {
 
         function WalkieRpc(rpcImpl, requestDelimited, responseDelimited) {
@@ -699,6 +1041,11 @@ export const prb = $root.prb = (() => {
         Object.defineProperty(WalkieRpc.prototype.hello = function hello(request, callback) {
             return this.rpcCall(hello, $root.prb.WalkieSystemInfo, $root.prb.WalkieSystemInfo, request, callback);
         }, "name", { value: "Hello" });
+
+
+        Object.defineProperty(WalkieRpc.prototype.auth = function auth(request, callback) {
+            return this.rpcCall(auth, $root.prb.AuthRequest, $root.prb.AuthResponse, request, callback);
+        }, "name", { value: "Auth" });
 
 
         Object.defineProperty(WalkieRpc.prototype.getDataProviderInfo = function getDataProviderInfo(request, callback) {
@@ -722,33 +1069,48 @@ export const prb = $root.prb = (() => {
 
 
         Object.defineProperty(WalkieRpc.prototype.listPool = function listPool(request, callback) {
-            return this.rpcCall(listPool, $root.prb.Empty, $root.prb.data_provider.PoolList, request, callback);
+            return this.rpcCall(listPool, $root.prb.Empty, $root.prb.lifecycle.PoolList, request, callback);
         }, "name", { value: "ListPool" });
 
 
         Object.defineProperty(WalkieRpc.prototype.createPool = function createPool(request, callback) {
-            return this.rpcCall(createPool, $root.prb.data_provider.CreatePool, $root.prb.data_provider.PoolList, request, callback);
+            return this.rpcCall(createPool, $root.prb.lifecycle.CreatePool, $root.prb.lifecycle.PoolList, request, callback);
         }, "name", { value: "CreatePool" });
 
 
         Object.defineProperty(WalkieRpc.prototype.updatePool = function updatePool(request, callback) {
-            return this.rpcCall(updatePool, $root.prb.data_provider.UpdatePool, $root.prb.data_provider.PoolList, request, callback);
+            return this.rpcCall(updatePool, $root.prb.lifecycle.UpdatePool, $root.prb.lifecycle.PoolList, request, callback);
         }, "name", { value: "UpdatePool" });
 
 
         Object.defineProperty(WalkieRpc.prototype.listWorker = function listWorker(request, callback) {
-            return this.rpcCall(listWorker, $root.prb.Empty, $root.prb.data_provider.WorkerList, request, callback);
+            return this.rpcCall(listWorker, $root.prb.Empty, $root.prb.lifecycle.WorkerList, request, callback);
         }, "name", { value: "ListWorker" });
 
 
         Object.defineProperty(WalkieRpc.prototype.createWorker = function createWorker(request, callback) {
-            return this.rpcCall(createWorker, $root.prb.data_provider.CreateWorker, $root.prb.data_provider.WorkerList, request, callback);
+            return this.rpcCall(createWorker, $root.prb.lifecycle.CreateWorker, $root.prb.lifecycle.WorkerList, request, callback);
         }, "name", { value: "CreateWorker" });
 
 
         Object.defineProperty(WalkieRpc.prototype.updateWorker = function updateWorker(request, callback) {
-            return this.rpcCall(updateWorker, $root.prb.data_provider.UpdateWorker, $root.prb.data_provider.WorkerList, request, callback);
+            return this.rpcCall(updateWorker, $root.prb.lifecycle.UpdateWorker, $root.prb.lifecycle.WorkerList, request, callback);
         }, "name", { value: "UpdateWorker" });
+
+
+        Object.defineProperty(WalkieRpc.prototype.restartWorker = function restartWorker(request, callback) {
+            return this.rpcCall(restartWorker, $root.prb.lifecycle.LifecycleActionRequest, $root.prb.WorkerStateUpdate, request, callback);
+        }, "name", { value: "RestartWorker" });
+
+
+        Object.defineProperty(WalkieRpc.prototype.kickWorker = function kickWorker(request, callback) {
+            return this.rpcCall(kickWorker, $root.prb.lifecycle.LifecycleActionRequest, $root.prb.WorkerStateUpdate, request, callback);
+        }, "name", { value: "KickWorker" });
+
+
+        Object.defineProperty(WalkieRpc.prototype.getWorkerStatus = function getWorkerStatus(request, callback) {
+            return this.rpcCall(getWorkerStatus, $root.prb.lifecycle.LifecycleActionRequest, $root.prb.WorkerStateUpdate, request, callback);
+        }, "name", { value: "GetWorkerStatus" });
 
         return WalkieRpc;
     })();
@@ -3880,878 +4242,6 @@ export const prb = $root.prb = (() => {
             return RawBlob;
         })();
 
-        data_provider.CreatePool = (function() {
-
-            function CreatePool(properties) {
-                this.pools = [];
-                if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                        if (properties[keys[i]] != null)
-                            this[keys[i]] = properties[keys[i]];
-            }
-
-            CreatePool.prototype.pools = $util.emptyArray;
-
-            CreatePool.create = function create(properties) {
-                return new CreatePool(properties);
-            };
-
-            CreatePool.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.pools != null && message.pools.length)
-                    for (let i = 0; i < message.pools.length; ++i)
-                        $root.prb.db.Pool.encode(message.pools[i], writer.uint32(10).fork()).ldelim();
-                return writer;
-            };
-
-            CreatePool.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-
-            CreatePool.decode = function decode(reader, length) {
-                if (!(reader instanceof $Reader))
-                    reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.data_provider.CreatePool();
-                while (reader.pos < end) {
-                    let tag = reader.uint32();
-                    switch (tag >>> 3) {
-                    case 1:
-                        if (!(message.pools && message.pools.length))
-                            message.pools = [];
-                        message.pools.push($root.prb.db.Pool.decode(reader, reader.uint32()));
-                        break;
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
-                    }
-                }
-                return message;
-            };
-
-            CreatePool.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-
-            CreatePool.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.pools != null && message.hasOwnProperty("pools")) {
-                    if (!Array.isArray(message.pools))
-                        return "pools: array expected";
-                    for (let i = 0; i < message.pools.length; ++i) {
-                        let error = $root.prb.db.Pool.verify(message.pools[i]);
-                        if (error)
-                            return "pools." + error;
-                    }
-                }
-                return null;
-            };
-
-            CreatePool.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.data_provider.CreatePool)
-                    return object;
-                let message = new $root.prb.data_provider.CreatePool();
-                if (object.pools) {
-                    if (!Array.isArray(object.pools))
-                        throw TypeError(".prb.data_provider.CreatePool.pools: array expected");
-                    message.pools = [];
-                    for (let i = 0; i < object.pools.length; ++i) {
-                        if (typeof object.pools[i] !== "object")
-                            throw TypeError(".prb.data_provider.CreatePool.pools: object expected");
-                        message.pools[i] = $root.prb.db.Pool.fromObject(object.pools[i]);
-                    }
-                }
-                return message;
-            };
-
-            CreatePool.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
-                let object = {};
-                if (options.arrays || options.defaults)
-                    object.pools = [];
-                if (message.pools && message.pools.length) {
-                    object.pools = [];
-                    for (let j = 0; j < message.pools.length; ++j)
-                        object.pools[j] = $root.prb.db.Pool.toObject(message.pools[j], options);
-                }
-                return object;
-            };
-
-            CreatePool.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-            };
-
-            return CreatePool;
-        })();
-
-        data_provider.UpdatePool = (function() {
-
-            function UpdatePool(properties) {
-                this.items = [];
-                if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                        if (properties[keys[i]] != null)
-                            this[keys[i]] = properties[keys[i]];
-            }
-
-            UpdatePool.prototype.items = $util.emptyArray;
-
-            UpdatePool.create = function create(properties) {
-                return new UpdatePool(properties);
-            };
-
-            UpdatePool.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.items != null && message.items.length)
-                    for (let i = 0; i < message.items.length; ++i)
-                        $root.prb.data_provider.UpdatePool.Item.encode(message.items[i], writer.uint32(10).fork()).ldelim();
-                return writer;
-            };
-
-            UpdatePool.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-
-            UpdatePool.decode = function decode(reader, length) {
-                if (!(reader instanceof $Reader))
-                    reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.data_provider.UpdatePool();
-                while (reader.pos < end) {
-                    let tag = reader.uint32();
-                    switch (tag >>> 3) {
-                    case 1:
-                        if (!(message.items && message.items.length))
-                            message.items = [];
-                        message.items.push($root.prb.data_provider.UpdatePool.Item.decode(reader, reader.uint32()));
-                        break;
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
-                    }
-                }
-                return message;
-            };
-
-            UpdatePool.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-
-            UpdatePool.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.items != null && message.hasOwnProperty("items")) {
-                    if (!Array.isArray(message.items))
-                        return "items: array expected";
-                    for (let i = 0; i < message.items.length; ++i) {
-                        let error = $root.prb.data_provider.UpdatePool.Item.verify(message.items[i]);
-                        if (error)
-                            return "items." + error;
-                    }
-                }
-                return null;
-            };
-
-            UpdatePool.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.data_provider.UpdatePool)
-                    return object;
-                let message = new $root.prb.data_provider.UpdatePool();
-                if (object.items) {
-                    if (!Array.isArray(object.items))
-                        throw TypeError(".prb.data_provider.UpdatePool.items: array expected");
-                    message.items = [];
-                    for (let i = 0; i < object.items.length; ++i) {
-                        if (typeof object.items[i] !== "object")
-                            throw TypeError(".prb.data_provider.UpdatePool.items: object expected");
-                        message.items[i] = $root.prb.data_provider.UpdatePool.Item.fromObject(object.items[i]);
-                    }
-                }
-                return message;
-            };
-
-            UpdatePool.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
-                let object = {};
-                if (options.arrays || options.defaults)
-                    object.items = [];
-                if (message.items && message.items.length) {
-                    object.items = [];
-                    for (let j = 0; j < message.items.length; ++j)
-                        object.items[j] = $root.prb.data_provider.UpdatePool.Item.toObject(message.items[j], options);
-                }
-                return object;
-            };
-
-            UpdatePool.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-            };
-
-            UpdatePool.Item = (function() {
-
-                function Item(properties) {
-                    if (properties)
-                        for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                Item.prototype.id = null;
-                Item.prototype.pool = null;
-
-                Item.create = function create(properties) {
-                    return new Item(properties);
-                };
-
-                Item.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-                        $root.prb.PoolOrWorkerQueryIdentity.encode(message.id, writer.uint32(10).fork()).ldelim();
-                    if (message.pool != null && Object.hasOwnProperty.call(message, "pool"))
-                        $root.prb.db.Pool.encode(message.pool, writer.uint32(18).fork()).ldelim();
-                    return writer;
-                };
-
-                Item.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                Item.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.data_provider.UpdatePool.Item();
-                    while (reader.pos < end) {
-                        let tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.id = $root.prb.PoolOrWorkerQueryIdentity.decode(reader, reader.uint32());
-                            break;
-                        case 2:
-                            message.pool = $root.prb.db.Pool.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                Item.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                Item.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.id != null && message.hasOwnProperty("id")) {
-                        let error = $root.prb.PoolOrWorkerQueryIdentity.verify(message.id);
-                        if (error)
-                            return "id." + error;
-                    }
-                    if (message.pool != null && message.hasOwnProperty("pool")) {
-                        let error = $root.prb.db.Pool.verify(message.pool);
-                        if (error)
-                            return "pool." + error;
-                    }
-                    return null;
-                };
-
-                Item.fromObject = function fromObject(object) {
-                    if (object instanceof $root.prb.data_provider.UpdatePool.Item)
-                        return object;
-                    let message = new $root.prb.data_provider.UpdatePool.Item();
-                    if (object.id != null) {
-                        if (typeof object.id !== "object")
-                            throw TypeError(".prb.data_provider.UpdatePool.Item.id: object expected");
-                        message.id = $root.prb.PoolOrWorkerQueryIdentity.fromObject(object.id);
-                    }
-                    if (object.pool != null) {
-                        if (typeof object.pool !== "object")
-                            throw TypeError(".prb.data_provider.UpdatePool.Item.pool: object expected");
-                        message.pool = $root.prb.db.Pool.fromObject(object.pool);
-                    }
-                    return message;
-                };
-
-                Item.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    let object = {};
-                    if (options.defaults) {
-                        object.id = null;
-                        object.pool = null;
-                    }
-                    if (message.id != null && message.hasOwnProperty("id"))
-                        object.id = $root.prb.PoolOrWorkerQueryIdentity.toObject(message.id, options);
-                    if (message.pool != null && message.hasOwnProperty("pool"))
-                        object.pool = $root.prb.db.Pool.toObject(message.pool, options);
-                    return object;
-                };
-
-                Item.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return Item;
-            })();
-
-            return UpdatePool;
-        })();
-
-        data_provider.CreateWorker = (function() {
-
-            function CreateWorker(properties) {
-                this.workers = [];
-                if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                        if (properties[keys[i]] != null)
-                            this[keys[i]] = properties[keys[i]];
-            }
-
-            CreateWorker.prototype.workers = $util.emptyArray;
-
-            CreateWorker.create = function create(properties) {
-                return new CreateWorker(properties);
-            };
-
-            CreateWorker.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.workers != null && message.workers.length)
-                    for (let i = 0; i < message.workers.length; ++i)
-                        $root.prb.db.Worker.encode(message.workers[i], writer.uint32(10).fork()).ldelim();
-                return writer;
-            };
-
-            CreateWorker.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-
-            CreateWorker.decode = function decode(reader, length) {
-                if (!(reader instanceof $Reader))
-                    reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.data_provider.CreateWorker();
-                while (reader.pos < end) {
-                    let tag = reader.uint32();
-                    switch (tag >>> 3) {
-                    case 1:
-                        if (!(message.workers && message.workers.length))
-                            message.workers = [];
-                        message.workers.push($root.prb.db.Worker.decode(reader, reader.uint32()));
-                        break;
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
-                    }
-                }
-                return message;
-            };
-
-            CreateWorker.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-
-            CreateWorker.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.workers != null && message.hasOwnProperty("workers")) {
-                    if (!Array.isArray(message.workers))
-                        return "workers: array expected";
-                    for (let i = 0; i < message.workers.length; ++i) {
-                        let error = $root.prb.db.Worker.verify(message.workers[i]);
-                        if (error)
-                            return "workers." + error;
-                    }
-                }
-                return null;
-            };
-
-            CreateWorker.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.data_provider.CreateWorker)
-                    return object;
-                let message = new $root.prb.data_provider.CreateWorker();
-                if (object.workers) {
-                    if (!Array.isArray(object.workers))
-                        throw TypeError(".prb.data_provider.CreateWorker.workers: array expected");
-                    message.workers = [];
-                    for (let i = 0; i < object.workers.length; ++i) {
-                        if (typeof object.workers[i] !== "object")
-                            throw TypeError(".prb.data_provider.CreateWorker.workers: object expected");
-                        message.workers[i] = $root.prb.db.Worker.fromObject(object.workers[i]);
-                    }
-                }
-                return message;
-            };
-
-            CreateWorker.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
-                let object = {};
-                if (options.arrays || options.defaults)
-                    object.workers = [];
-                if (message.workers && message.workers.length) {
-                    object.workers = [];
-                    for (let j = 0; j < message.workers.length; ++j)
-                        object.workers[j] = $root.prb.db.Worker.toObject(message.workers[j], options);
-                }
-                return object;
-            };
-
-            CreateWorker.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-            };
-
-            return CreateWorker;
-        })();
-
-        data_provider.UpdateWorker = (function() {
-
-            function UpdateWorker(properties) {
-                this.items = [];
-                if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                        if (properties[keys[i]] != null)
-                            this[keys[i]] = properties[keys[i]];
-            }
-
-            UpdateWorker.prototype.items = $util.emptyArray;
-
-            UpdateWorker.create = function create(properties) {
-                return new UpdateWorker(properties);
-            };
-
-            UpdateWorker.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.items != null && message.items.length)
-                    for (let i = 0; i < message.items.length; ++i)
-                        $root.prb.data_provider.UpdateWorker.Item.encode(message.items[i], writer.uint32(10).fork()).ldelim();
-                return writer;
-            };
-
-            UpdateWorker.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-
-            UpdateWorker.decode = function decode(reader, length) {
-                if (!(reader instanceof $Reader))
-                    reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.data_provider.UpdateWorker();
-                while (reader.pos < end) {
-                    let tag = reader.uint32();
-                    switch (tag >>> 3) {
-                    case 1:
-                        if (!(message.items && message.items.length))
-                            message.items = [];
-                        message.items.push($root.prb.data_provider.UpdateWorker.Item.decode(reader, reader.uint32()));
-                        break;
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
-                    }
-                }
-                return message;
-            };
-
-            UpdateWorker.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-
-            UpdateWorker.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.items != null && message.hasOwnProperty("items")) {
-                    if (!Array.isArray(message.items))
-                        return "items: array expected";
-                    for (let i = 0; i < message.items.length; ++i) {
-                        let error = $root.prb.data_provider.UpdateWorker.Item.verify(message.items[i]);
-                        if (error)
-                            return "items." + error;
-                    }
-                }
-                return null;
-            };
-
-            UpdateWorker.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.data_provider.UpdateWorker)
-                    return object;
-                let message = new $root.prb.data_provider.UpdateWorker();
-                if (object.items) {
-                    if (!Array.isArray(object.items))
-                        throw TypeError(".prb.data_provider.UpdateWorker.items: array expected");
-                    message.items = [];
-                    for (let i = 0; i < object.items.length; ++i) {
-                        if (typeof object.items[i] !== "object")
-                            throw TypeError(".prb.data_provider.UpdateWorker.items: object expected");
-                        message.items[i] = $root.prb.data_provider.UpdateWorker.Item.fromObject(object.items[i]);
-                    }
-                }
-                return message;
-            };
-
-            UpdateWorker.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
-                let object = {};
-                if (options.arrays || options.defaults)
-                    object.items = [];
-                if (message.items && message.items.length) {
-                    object.items = [];
-                    for (let j = 0; j < message.items.length; ++j)
-                        object.items[j] = $root.prb.data_provider.UpdateWorker.Item.toObject(message.items[j], options);
-                }
-                return object;
-            };
-
-            UpdateWorker.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-            };
-
-            UpdateWorker.Item = (function() {
-
-                function Item(properties) {
-                    if (properties)
-                        for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                Item.prototype.id = null;
-                Item.prototype.worker = null;
-
-                Item.create = function create(properties) {
-                    return new Item(properties);
-                };
-
-                Item.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-                        $root.prb.PoolOrWorkerQueryIdentity.encode(message.id, writer.uint32(10).fork()).ldelim();
-                    if (message.worker != null && Object.hasOwnProperty.call(message, "worker"))
-                        $root.prb.db.Worker.encode(message.worker, writer.uint32(18).fork()).ldelim();
-                    return writer;
-                };
-
-                Item.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                Item.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.data_provider.UpdateWorker.Item();
-                    while (reader.pos < end) {
-                        let tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.id = $root.prb.PoolOrWorkerQueryIdentity.decode(reader, reader.uint32());
-                            break;
-                        case 2:
-                            message.worker = $root.prb.db.Worker.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                Item.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                Item.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.id != null && message.hasOwnProperty("id")) {
-                        let error = $root.prb.PoolOrWorkerQueryIdentity.verify(message.id);
-                        if (error)
-                            return "id." + error;
-                    }
-                    if (message.worker != null && message.hasOwnProperty("worker")) {
-                        let error = $root.prb.db.Worker.verify(message.worker);
-                        if (error)
-                            return "worker." + error;
-                    }
-                    return null;
-                };
-
-                Item.fromObject = function fromObject(object) {
-                    if (object instanceof $root.prb.data_provider.UpdateWorker.Item)
-                        return object;
-                    let message = new $root.prb.data_provider.UpdateWorker.Item();
-                    if (object.id != null) {
-                        if (typeof object.id !== "object")
-                            throw TypeError(".prb.data_provider.UpdateWorker.Item.id: object expected");
-                        message.id = $root.prb.PoolOrWorkerQueryIdentity.fromObject(object.id);
-                    }
-                    if (object.worker != null) {
-                        if (typeof object.worker !== "object")
-                            throw TypeError(".prb.data_provider.UpdateWorker.Item.worker: object expected");
-                        message.worker = $root.prb.db.Worker.fromObject(object.worker);
-                    }
-                    return message;
-                };
-
-                Item.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    let object = {};
-                    if (options.defaults) {
-                        object.id = null;
-                        object.worker = null;
-                    }
-                    if (message.id != null && message.hasOwnProperty("id"))
-                        object.id = $root.prb.PoolOrWorkerQueryIdentity.toObject(message.id, options);
-                    if (message.worker != null && message.hasOwnProperty("worker"))
-                        object.worker = $root.prb.db.Worker.toObject(message.worker, options);
-                    return object;
-                };
-
-                Item.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return Item;
-            })();
-
-            return UpdateWorker;
-        })();
-
-        data_provider.PoolList = (function() {
-
-            function PoolList(properties) {
-                this.pools = [];
-                if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                        if (properties[keys[i]] != null)
-                            this[keys[i]] = properties[keys[i]];
-            }
-
-            PoolList.prototype.pools = $util.emptyArray;
-
-            PoolList.create = function create(properties) {
-                return new PoolList(properties);
-            };
-
-            PoolList.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.pools != null && message.pools.length)
-                    for (let i = 0; i < message.pools.length; ++i)
-                        $root.prb.db.Pool.encode(message.pools[i], writer.uint32(10).fork()).ldelim();
-                return writer;
-            };
-
-            PoolList.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-
-            PoolList.decode = function decode(reader, length) {
-                if (!(reader instanceof $Reader))
-                    reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.data_provider.PoolList();
-                while (reader.pos < end) {
-                    let tag = reader.uint32();
-                    switch (tag >>> 3) {
-                    case 1:
-                        if (!(message.pools && message.pools.length))
-                            message.pools = [];
-                        message.pools.push($root.prb.db.Pool.decode(reader, reader.uint32()));
-                        break;
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
-                    }
-                }
-                return message;
-            };
-
-            PoolList.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-
-            PoolList.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.pools != null && message.hasOwnProperty("pools")) {
-                    if (!Array.isArray(message.pools))
-                        return "pools: array expected";
-                    for (let i = 0; i < message.pools.length; ++i) {
-                        let error = $root.prb.db.Pool.verify(message.pools[i]);
-                        if (error)
-                            return "pools." + error;
-                    }
-                }
-                return null;
-            };
-
-            PoolList.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.data_provider.PoolList)
-                    return object;
-                let message = new $root.prb.data_provider.PoolList();
-                if (object.pools) {
-                    if (!Array.isArray(object.pools))
-                        throw TypeError(".prb.data_provider.PoolList.pools: array expected");
-                    message.pools = [];
-                    for (let i = 0; i < object.pools.length; ++i) {
-                        if (typeof object.pools[i] !== "object")
-                            throw TypeError(".prb.data_provider.PoolList.pools: object expected");
-                        message.pools[i] = $root.prb.db.Pool.fromObject(object.pools[i]);
-                    }
-                }
-                return message;
-            };
-
-            PoolList.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
-                let object = {};
-                if (options.arrays || options.defaults)
-                    object.pools = [];
-                if (message.pools && message.pools.length) {
-                    object.pools = [];
-                    for (let j = 0; j < message.pools.length; ++j)
-                        object.pools[j] = $root.prb.db.Pool.toObject(message.pools[j], options);
-                }
-                return object;
-            };
-
-            PoolList.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-            };
-
-            return PoolList;
-        })();
-
-        data_provider.WorkerList = (function() {
-
-            function WorkerList(properties) {
-                this.workers = [];
-                if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                        if (properties[keys[i]] != null)
-                            this[keys[i]] = properties[keys[i]];
-            }
-
-            WorkerList.prototype.workers = $util.emptyArray;
-
-            WorkerList.create = function create(properties) {
-                return new WorkerList(properties);
-            };
-
-            WorkerList.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.workers != null && message.workers.length)
-                    for (let i = 0; i < message.workers.length; ++i)
-                        $root.prb.db.Worker.encode(message.workers[i], writer.uint32(10).fork()).ldelim();
-                return writer;
-            };
-
-            WorkerList.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-
-            WorkerList.decode = function decode(reader, length) {
-                if (!(reader instanceof $Reader))
-                    reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.data_provider.WorkerList();
-                while (reader.pos < end) {
-                    let tag = reader.uint32();
-                    switch (tag >>> 3) {
-                    case 1:
-                        if (!(message.workers && message.workers.length))
-                            message.workers = [];
-                        message.workers.push($root.prb.db.Worker.decode(reader, reader.uint32()));
-                        break;
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
-                    }
-                }
-                return message;
-            };
-
-            WorkerList.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-
-            WorkerList.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.workers != null && message.hasOwnProperty("workers")) {
-                    if (!Array.isArray(message.workers))
-                        return "workers: array expected";
-                    for (let i = 0; i < message.workers.length; ++i) {
-                        let error = $root.prb.db.Worker.verify(message.workers[i]);
-                        if (error)
-                            return "workers." + error;
-                    }
-                }
-                return null;
-            };
-
-            WorkerList.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.data_provider.WorkerList)
-                    return object;
-                let message = new $root.prb.data_provider.WorkerList();
-                if (object.workers) {
-                    if (!Array.isArray(object.workers))
-                        throw TypeError(".prb.data_provider.WorkerList.workers: array expected");
-                    message.workers = [];
-                    for (let i = 0; i < object.workers.length; ++i) {
-                        if (typeof object.workers[i] !== "object")
-                            throw TypeError(".prb.data_provider.WorkerList.workers: object expected");
-                        message.workers[i] = $root.prb.db.Worker.fromObject(object.workers[i]);
-                    }
-                }
-                return message;
-            };
-
-            WorkerList.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
-                let object = {};
-                if (options.arrays || options.defaults)
-                    object.workers = [];
-                if (message.workers && message.workers.length) {
-                    object.workers = [];
-                    for (let j = 0; j < message.workers.length; ++j)
-                        object.workers[j] = $root.prb.db.Worker.toObject(message.workers[j], options);
-                }
-                return object;
-            };
-
-            WorkerList.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-            };
-
-            return WorkerList;
-        })();
-
         return data_provider;
     })();
 
@@ -5394,588 +4884,1206 @@ export const prb = $root.prb = (() => {
         return WorkerStateUpdate;
     })();
 
-    prb.LifecycleManagerStateUpdate = (function() {
+    prb.lifecycle = (function() {
 
-        function LifecycleManagerStateUpdate(properties) {
-            this.pools = [];
-            this.workers = [];
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
+        const lifecycle = {};
 
-        LifecycleManagerStateUpdate.prototype.hostname = "";
-        LifecycleManagerStateUpdate.prototype.pools = $util.emptyArray;
-        LifecycleManagerStateUpdate.prototype.workers = $util.emptyArray;
+        lifecycle.LifecycleActionRequest = (function() {
 
-        LifecycleManagerStateUpdate.create = function create(properties) {
-            return new LifecycleManagerStateUpdate(properties);
-        };
-
-        LifecycleManagerStateUpdate.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.hostname != null && Object.hasOwnProperty.call(message, "hostname"))
-                writer.uint32(10).string(message.hostname);
-            if (message.pools != null && message.pools.length)
-                for (let i = 0; i < message.pools.length; ++i)
-                    $root.prb.db.Pool.encode(message.pools[i], writer.uint32(18).fork()).ldelim();
-            if (message.workers != null && message.workers.length)
-                for (let i = 0; i < message.workers.length; ++i)
-                    $root.prb.db.Worker.encode(message.workers[i], writer.uint32(26).fork()).ldelim();
-            return writer;
-        };
-
-        LifecycleManagerStateUpdate.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        LifecycleManagerStateUpdate.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.LifecycleManagerStateUpdate();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.hostname = reader.string();
-                    break;
-                case 2:
-                    if (!(message.pools && message.pools.length))
-                        message.pools = [];
-                    message.pools.push($root.prb.db.Pool.decode(reader, reader.uint32()));
-                    break;
-                case 3:
-                    if (!(message.workers && message.workers.length))
-                        message.workers = [];
-                    message.workers.push($root.prb.db.Worker.decode(reader, reader.uint32()));
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-                }
+            function LifecycleActionRequest(properties) {
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
             }
-            return message;
-        };
 
-        LifecycleManagerStateUpdate.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
+            LifecycleActionRequest.prototype.id = null;
+            LifecycleActionRequest.prototype.reason = "";
 
-        LifecycleManagerStateUpdate.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.hostname != null && message.hasOwnProperty("hostname"))
-                if (!$util.isString(message.hostname))
-                    return "hostname: string expected";
-            if (message.pools != null && message.hasOwnProperty("pools")) {
-                if (!Array.isArray(message.pools))
-                    return "pools: array expected";
-                for (let i = 0; i < message.pools.length; ++i) {
-                    let error = $root.prb.db.Pool.verify(message.pools[i]);
+            LifecycleActionRequest.create = function create(properties) {
+                return new LifecycleActionRequest(properties);
+            };
+
+            LifecycleActionRequest.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    $root.prb.PoolOrWorkerQueryIdentity.encode(message.id, writer.uint32(10).fork()).ldelim();
+                if (message.reason != null && Object.hasOwnProperty.call(message, "reason"))
+                    writer.uint32(18).string(message.reason);
+                return writer;
+            };
+
+            LifecycleActionRequest.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            LifecycleActionRequest.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.LifecycleActionRequest();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.id = $root.prb.PoolOrWorkerQueryIdentity.decode(reader, reader.uint32());
+                        break;
+                    case 2:
+                        message.reason = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+
+            LifecycleActionRequest.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            LifecycleActionRequest.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.id != null && message.hasOwnProperty("id")) {
+                    let error = $root.prb.PoolOrWorkerQueryIdentity.verify(message.id);
                     if (error)
-                        return "pools." + error;
+                        return "id." + error;
                 }
-            }
-            if (message.workers != null && message.hasOwnProperty("workers")) {
-                if (!Array.isArray(message.workers))
-                    return "workers: array expected";
-                for (let i = 0; i < message.workers.length; ++i) {
-                    let error = $root.prb.db.Worker.verify(message.workers[i]);
-                    if (error)
-                        return "workers." + error;
-                }
-            }
-            return null;
-        };
+                if (message.reason != null && message.hasOwnProperty("reason"))
+                    if (!$util.isString(message.reason))
+                        return "reason: string expected";
+                return null;
+            };
 
-        LifecycleManagerStateUpdate.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.LifecycleManagerStateUpdate)
+            LifecycleActionRequest.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.LifecycleActionRequest)
+                    return object;
+                let message = new $root.prb.lifecycle.LifecycleActionRequest();
+                if (object.id != null) {
+                    if (typeof object.id !== "object")
+                        throw TypeError(".prb.lifecycle.LifecycleActionRequest.id: object expected");
+                    message.id = $root.prb.PoolOrWorkerQueryIdentity.fromObject(object.id);
+                }
+                if (object.reason != null)
+                    message.reason = String(object.reason);
+                return message;
+            };
+
+            LifecycleActionRequest.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.defaults) {
+                    object.id = null;
+                    object.reason = "";
+                }
+                if (message.id != null && message.hasOwnProperty("id"))
+                    object.id = $root.prb.PoolOrWorkerQueryIdentity.toObject(message.id, options);
+                if (message.reason != null && message.hasOwnProperty("reason"))
+                    object.reason = message.reason;
                 return object;
-            let message = new $root.prb.LifecycleManagerStateUpdate();
-            if (object.hostname != null)
-                message.hostname = String(object.hostname);
-            if (object.pools) {
-                if (!Array.isArray(object.pools))
-                    throw TypeError(".prb.LifecycleManagerStateUpdate.pools: array expected");
-                message.pools = [];
-                for (let i = 0; i < object.pools.length; ++i) {
-                    if (typeof object.pools[i] !== "object")
-                        throw TypeError(".prb.LifecycleManagerStateUpdate.pools: object expected");
-                    message.pools[i] = $root.prb.db.Pool.fromObject(object.pools[i]);
+            };
+
+            LifecycleActionRequest.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return LifecycleActionRequest;
+        })();
+
+        lifecycle.RequestStartWorkerLifecycle = (function() {
+
+            function RequestStartWorkerLifecycle(properties) {
+                this.requests = [];
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+
+            RequestStartWorkerLifecycle.prototype.requests = $util.emptyArray;
+
+            RequestStartWorkerLifecycle.create = function create(properties) {
+                return new RequestStartWorkerLifecycle(properties);
+            };
+
+            RequestStartWorkerLifecycle.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.requests != null && message.requests.length)
+                    for (let i = 0; i < message.requests.length; ++i)
+                        $root.prb.lifecycle.LifecycleActionRequest.encode(message.requests[i], writer.uint32(10).fork()).ldelim();
+                return writer;
+            };
+
+            RequestStartWorkerLifecycle.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            RequestStartWorkerLifecycle.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.RequestStartWorkerLifecycle();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.requests && message.requests.length))
+                            message.requests = [];
+                        message.requests.push($root.prb.lifecycle.LifecycleActionRequest.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
                 }
-            }
-            if (object.workers) {
-                if (!Array.isArray(object.workers))
-                    throw TypeError(".prb.LifecycleManagerStateUpdate.workers: array expected");
-                message.workers = [];
-                for (let i = 0; i < object.workers.length; ++i) {
-                    if (typeof object.workers[i] !== "object")
-                        throw TypeError(".prb.LifecycleManagerStateUpdate.workers: object expected");
-                    message.workers[i] = $root.prb.db.Worker.fromObject(object.workers[i]);
+                return message;
+            };
+
+            RequestStartWorkerLifecycle.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            RequestStartWorkerLifecycle.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.requests != null && message.hasOwnProperty("requests")) {
+                    if (!Array.isArray(message.requests))
+                        return "requests: array expected";
+                    for (let i = 0; i < message.requests.length; ++i) {
+                        let error = $root.prb.lifecycle.LifecycleActionRequest.verify(message.requests[i]);
+                        if (error)
+                            return "requests." + error;
+                    }
                 }
-            }
-            return message;
-        };
+                return null;
+            };
 
-        LifecycleManagerStateUpdate.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.arrays || options.defaults) {
-                object.pools = [];
-                object.workers = [];
-            }
-            if (options.defaults)
-                object.hostname = "";
-            if (message.hostname != null && message.hasOwnProperty("hostname"))
-                object.hostname = message.hostname;
-            if (message.pools && message.pools.length) {
-                object.pools = [];
-                for (let j = 0; j < message.pools.length; ++j)
-                    object.pools[j] = $root.prb.db.Pool.toObject(message.pools[j], options);
-            }
-            if (message.workers && message.workers.length) {
-                object.workers = [];
-                for (let j = 0; j < message.workers.length; ++j)
-                    object.workers[j] = $root.prb.db.Worker.toObject(message.workers[j], options);
-            }
-            return object;
-        };
-
-        LifecycleManagerStateUpdate.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
-
-        return LifecycleManagerStateUpdate;
-    })();
-
-    prb.CallOnlineLifecycleManager = (function() {
-
-        function CallOnlineLifecycleManager(properties) {
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-
-        CallOnlineLifecycleManager.prototype.isResponse = false;
-        CallOnlineLifecycleManager.prototype.hostname = "";
-
-        CallOnlineLifecycleManager.create = function create(properties) {
-            return new CallOnlineLifecycleManager(properties);
-        };
-
-        CallOnlineLifecycleManager.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.isResponse != null && Object.hasOwnProperty.call(message, "isResponse"))
-                writer.uint32(8).bool(message.isResponse);
-            if (message.hostname != null && Object.hasOwnProperty.call(message, "hostname"))
-                writer.uint32(18).string(message.hostname);
-            return writer;
-        };
-
-        CallOnlineLifecycleManager.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        CallOnlineLifecycleManager.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.CallOnlineLifecycleManager();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.isResponse = reader.bool();
-                    break;
-                case 2:
-                    message.hostname = reader.string();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
+            RequestStartWorkerLifecycle.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.RequestStartWorkerLifecycle)
+                    return object;
+                let message = new $root.prb.lifecycle.RequestStartWorkerLifecycle();
+                if (object.requests) {
+                    if (!Array.isArray(object.requests))
+                        throw TypeError(".prb.lifecycle.RequestStartWorkerLifecycle.requests: array expected");
+                    message.requests = [];
+                    for (let i = 0; i < object.requests.length; ++i) {
+                        if (typeof object.requests[i] !== "object")
+                            throw TypeError(".prb.lifecycle.RequestStartWorkerLifecycle.requests: object expected");
+                        message.requests[i] = $root.prb.lifecycle.LifecycleActionRequest.fromObject(object.requests[i]);
+                    }
                 }
-            }
-            return message;
-        };
+                return message;
+            };
 
-        CallOnlineLifecycleManager.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-
-        CallOnlineLifecycleManager.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.isResponse != null && message.hasOwnProperty("isResponse"))
-                if (typeof message.isResponse !== "boolean")
-                    return "isResponse: boolean expected";
-            if (message.hostname != null && message.hasOwnProperty("hostname"))
-                if (!$util.isString(message.hostname))
-                    return "hostname: string expected";
-            return null;
-        };
-
-        CallOnlineLifecycleManager.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.CallOnlineLifecycleManager)
+            RequestStartWorkerLifecycle.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.arrays || options.defaults)
+                    object.requests = [];
+                if (message.requests && message.requests.length) {
+                    object.requests = [];
+                    for (let j = 0; j < message.requests.length; ++j)
+                        object.requests[j] = $root.prb.lifecycle.LifecycleActionRequest.toObject(message.requests[j], options);
+                }
                 return object;
-            let message = new $root.prb.CallOnlineLifecycleManager();
-            if (object.isResponse != null)
-                message.isResponse = Boolean(object.isResponse);
-            if (object.hostname != null)
-                message.hostname = String(object.hostname);
-            return message;
-        };
+            };
 
-        CallOnlineLifecycleManager.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.defaults) {
-                object.isResponse = false;
-                object.hostname = "";
+            RequestStartWorkerLifecycle.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return RequestStartWorkerLifecycle;
+        })();
+
+        lifecycle.RequestKickWorker = (function() {
+
+            function RequestKickWorker(properties) {
+                this.requests = [];
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
             }
-            if (message.isResponse != null && message.hasOwnProperty("isResponse"))
-                object.isResponse = message.isResponse;
-            if (message.hostname != null && message.hasOwnProperty("hostname"))
-                object.hostname = message.hostname;
-            return object;
-        };
 
-        CallOnlineLifecycleManager.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
+            RequestKickWorker.prototype.requests = $util.emptyArray;
 
-        return CallOnlineLifecycleManager;
-    })();
+            RequestKickWorker.create = function create(properties) {
+                return new RequestKickWorker(properties);
+            };
 
-    prb.LifecycleActionRequest = (function() {
+            RequestKickWorker.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.requests != null && message.requests.length)
+                    for (let i = 0; i < message.requests.length; ++i)
+                        $root.prb.lifecycle.LifecycleActionRequest.encode(message.requests[i], writer.uint32(10).fork()).ldelim();
+                return writer;
+            };
 
-        function LifecycleActionRequest(properties) {
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
+            RequestKickWorker.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
 
-        LifecycleActionRequest.prototype.id = null;
-        LifecycleActionRequest.prototype.reason = "";
-
-        LifecycleActionRequest.create = function create(properties) {
-            return new LifecycleActionRequest(properties);
-        };
-
-        LifecycleActionRequest.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-                $root.prb.PoolOrWorkerQueryIdentity.encode(message.id, writer.uint32(10).fork()).ldelim();
-            if (message.reason != null && Object.hasOwnProperty.call(message, "reason"))
-                writer.uint32(18).string(message.reason);
-            return writer;
-        };
-
-        LifecycleActionRequest.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        LifecycleActionRequest.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.LifecycleActionRequest();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.id = $root.prb.PoolOrWorkerQueryIdentity.decode(reader, reader.uint32());
-                    break;
-                case 2:
-                    message.reason = reader.string();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
+            RequestKickWorker.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.RequestKickWorker();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.requests && message.requests.length))
+                            message.requests = [];
+                        message.requests.push($root.prb.lifecycle.LifecycleActionRequest.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
                 }
-            }
-            return message;
-        };
+                return message;
+            };
 
-        LifecycleActionRequest.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
+            RequestKickWorker.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
 
-        LifecycleActionRequest.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.id != null && message.hasOwnProperty("id")) {
-                let error = $root.prb.PoolOrWorkerQueryIdentity.verify(message.id);
-                if (error)
-                    return "id." + error;
-            }
-            if (message.reason != null && message.hasOwnProperty("reason"))
-                if (!$util.isString(message.reason))
-                    return "reason: string expected";
-            return null;
-        };
+            RequestKickWorker.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.requests != null && message.hasOwnProperty("requests")) {
+                    if (!Array.isArray(message.requests))
+                        return "requests: array expected";
+                    for (let i = 0; i < message.requests.length; ++i) {
+                        let error = $root.prb.lifecycle.LifecycleActionRequest.verify(message.requests[i]);
+                        if (error)
+                            return "requests." + error;
+                    }
+                }
+                return null;
+            };
 
-        LifecycleActionRequest.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.LifecycleActionRequest)
+            RequestKickWorker.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.RequestKickWorker)
+                    return object;
+                let message = new $root.prb.lifecycle.RequestKickWorker();
+                if (object.requests) {
+                    if (!Array.isArray(object.requests))
+                        throw TypeError(".prb.lifecycle.RequestKickWorker.requests: array expected");
+                    message.requests = [];
+                    for (let i = 0; i < object.requests.length; ++i) {
+                        if (typeof object.requests[i] !== "object")
+                            throw TypeError(".prb.lifecycle.RequestKickWorker.requests: object expected");
+                        message.requests[i] = $root.prb.lifecycle.LifecycleActionRequest.fromObject(object.requests[i]);
+                    }
+                }
+                return message;
+            };
+
+            RequestKickWorker.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.arrays || options.defaults)
+                    object.requests = [];
+                if (message.requests && message.requests.length) {
+                    object.requests = [];
+                    for (let j = 0; j < message.requests.length; ++j)
+                        object.requests[j] = $root.prb.lifecycle.LifecycleActionRequest.toObject(message.requests[j], options);
+                }
                 return object;
-            let message = new $root.prb.LifecycleActionRequest();
-            if (object.id != null) {
-                if (typeof object.id !== "object")
-                    throw TypeError(".prb.LifecycleActionRequest.id: object expected");
-                message.id = $root.prb.PoolOrWorkerQueryIdentity.fromObject(object.id);
+            };
+
+            RequestKickWorker.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return RequestKickWorker;
+        })();
+
+        lifecycle.CreatePool = (function() {
+
+            function CreatePool(properties) {
+                this.pools = [];
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
             }
-            if (object.reason != null)
-                message.reason = String(object.reason);
-            return message;
-        };
 
-        LifecycleActionRequest.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.defaults) {
-                object.id = null;
-                object.reason = "";
-            }
-            if (message.id != null && message.hasOwnProperty("id"))
-                object.id = $root.prb.PoolOrWorkerQueryIdentity.toObject(message.id, options);
-            if (message.reason != null && message.hasOwnProperty("reason"))
-                object.reason = message.reason;
-            return object;
-        };
+            CreatePool.prototype.pools = $util.emptyArray;
 
-        LifecycleActionRequest.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
+            CreatePool.create = function create(properties) {
+                return new CreatePool(properties);
+            };
 
-        return LifecycleActionRequest;
-    })();
+            CreatePool.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.pools != null && message.pools.length)
+                    for (let i = 0; i < message.pools.length; ++i)
+                        $root.prb.db.Pool.encode(message.pools[i], writer.uint32(10).fork()).ldelim();
+                return writer;
+            };
 
-    prb.RequestStartWorkerLifecycle = (function() {
+            CreatePool.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
 
-        function RequestStartWorkerLifecycle(properties) {
-            this.requests = [];
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-
-        RequestStartWorkerLifecycle.prototype.requests = $util.emptyArray;
-
-        RequestStartWorkerLifecycle.create = function create(properties) {
-            return new RequestStartWorkerLifecycle(properties);
-        };
-
-        RequestStartWorkerLifecycle.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.requests != null && message.requests.length)
-                for (let i = 0; i < message.requests.length; ++i)
-                    $root.prb.LifecycleActionRequest.encode(message.requests[i], writer.uint32(10).fork()).ldelim();
-            return writer;
-        };
-
-        RequestStartWorkerLifecycle.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        RequestStartWorkerLifecycle.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.RequestStartWorkerLifecycle();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    if (!(message.requests && message.requests.length))
-                        message.requests = [];
-                    message.requests.push($root.prb.LifecycleActionRequest.decode(reader, reader.uint32()));
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
+            CreatePool.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.CreatePool();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.pools && message.pools.length))
+                            message.pools = [];
+                        message.pools.push($root.prb.db.Pool.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
                 }
-            }
-            return message;
-        };
+                return message;
+            };
 
-        RequestStartWorkerLifecycle.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
+            CreatePool.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
 
-        RequestStartWorkerLifecycle.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.requests != null && message.hasOwnProperty("requests")) {
-                if (!Array.isArray(message.requests))
-                    return "requests: array expected";
-                for (let i = 0; i < message.requests.length; ++i) {
-                    let error = $root.prb.LifecycleActionRequest.verify(message.requests[i]);
-                    if (error)
-                        return "requests." + error;
+            CreatePool.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.pools != null && message.hasOwnProperty("pools")) {
+                    if (!Array.isArray(message.pools))
+                        return "pools: array expected";
+                    for (let i = 0; i < message.pools.length; ++i) {
+                        let error = $root.prb.db.Pool.verify(message.pools[i]);
+                        if (error)
+                            return "pools." + error;
+                    }
                 }
-            }
-            return null;
-        };
+                return null;
+            };
 
-        RequestStartWorkerLifecycle.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.RequestStartWorkerLifecycle)
+            CreatePool.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.CreatePool)
+                    return object;
+                let message = new $root.prb.lifecycle.CreatePool();
+                if (object.pools) {
+                    if (!Array.isArray(object.pools))
+                        throw TypeError(".prb.lifecycle.CreatePool.pools: array expected");
+                    message.pools = [];
+                    for (let i = 0; i < object.pools.length; ++i) {
+                        if (typeof object.pools[i] !== "object")
+                            throw TypeError(".prb.lifecycle.CreatePool.pools: object expected");
+                        message.pools[i] = $root.prb.db.Pool.fromObject(object.pools[i]);
+                    }
+                }
+                return message;
+            };
+
+            CreatePool.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.arrays || options.defaults)
+                    object.pools = [];
+                if (message.pools && message.pools.length) {
+                    object.pools = [];
+                    for (let j = 0; j < message.pools.length; ++j)
+                        object.pools[j] = $root.prb.db.Pool.toObject(message.pools[j], options);
+                }
                 return object;
-            let message = new $root.prb.RequestStartWorkerLifecycle();
-            if (object.requests) {
-                if (!Array.isArray(object.requests))
-                    throw TypeError(".prb.RequestStartWorkerLifecycle.requests: array expected");
-                message.requests = [];
-                for (let i = 0; i < object.requests.length; ++i) {
-                    if (typeof object.requests[i] !== "object")
-                        throw TypeError(".prb.RequestStartWorkerLifecycle.requests: object expected");
-                    message.requests[i] = $root.prb.LifecycleActionRequest.fromObject(object.requests[i]);
+            };
+
+            CreatePool.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return CreatePool;
+        })();
+
+        lifecycle.UpdatePool = (function() {
+
+            function UpdatePool(properties) {
+                this.items = [];
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+
+            UpdatePool.prototype.items = $util.emptyArray;
+
+            UpdatePool.create = function create(properties) {
+                return new UpdatePool(properties);
+            };
+
+            UpdatePool.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.items != null && message.items.length)
+                    for (let i = 0; i < message.items.length; ++i)
+                        $root.prb.lifecycle.UpdatePool.Item.encode(message.items[i], writer.uint32(10).fork()).ldelim();
+                return writer;
+            };
+
+            UpdatePool.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            UpdatePool.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.UpdatePool();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.items && message.items.length))
+                            message.items = [];
+                        message.items.push($root.prb.lifecycle.UpdatePool.Item.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
                 }
-            }
-            return message;
-        };
+                return message;
+            };
 
-        RequestStartWorkerLifecycle.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.arrays || options.defaults)
-                object.requests = [];
-            if (message.requests && message.requests.length) {
-                object.requests = [];
-                for (let j = 0; j < message.requests.length; ++j)
-                    object.requests[j] = $root.prb.LifecycleActionRequest.toObject(message.requests[j], options);
-            }
-            return object;
-        };
+            UpdatePool.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
 
-        RequestStartWorkerLifecycle.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
-
-        return RequestStartWorkerLifecycle;
-    })();
-
-    prb.RequestKickWorker = (function() {
-
-        function RequestKickWorker(properties) {
-            this.requests = [];
-            if (properties)
-                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-
-        RequestKickWorker.prototype.requests = $util.emptyArray;
-
-        RequestKickWorker.create = function create(properties) {
-            return new RequestKickWorker(properties);
-        };
-
-        RequestKickWorker.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.requests != null && message.requests.length)
-                for (let i = 0; i < message.requests.length; ++i)
-                    $root.prb.LifecycleActionRequest.encode(message.requests[i], writer.uint32(10).fork()).ldelim();
-            return writer;
-        };
-
-        RequestKickWorker.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        RequestKickWorker.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.RequestKickWorker();
-            while (reader.pos < end) {
-                let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    if (!(message.requests && message.requests.length))
-                        message.requests = [];
-                    message.requests.push($root.prb.LifecycleActionRequest.decode(reader, reader.uint32()));
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
+            UpdatePool.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.items != null && message.hasOwnProperty("items")) {
+                    if (!Array.isArray(message.items))
+                        return "items: array expected";
+                    for (let i = 0; i < message.items.length; ++i) {
+                        let error = $root.prb.lifecycle.UpdatePool.Item.verify(message.items[i]);
+                        if (error)
+                            return "items." + error;
+                    }
                 }
-            }
-            return message;
-        };
+                return null;
+            };
 
-        RequestKickWorker.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-
-        RequestKickWorker.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.requests != null && message.hasOwnProperty("requests")) {
-                if (!Array.isArray(message.requests))
-                    return "requests: array expected";
-                for (let i = 0; i < message.requests.length; ++i) {
-                    let error = $root.prb.LifecycleActionRequest.verify(message.requests[i]);
-                    if (error)
-                        return "requests." + error;
+            UpdatePool.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.UpdatePool)
+                    return object;
+                let message = new $root.prb.lifecycle.UpdatePool();
+                if (object.items) {
+                    if (!Array.isArray(object.items))
+                        throw TypeError(".prb.lifecycle.UpdatePool.items: array expected");
+                    message.items = [];
+                    for (let i = 0; i < object.items.length; ++i) {
+                        if (typeof object.items[i] !== "object")
+                            throw TypeError(".prb.lifecycle.UpdatePool.items: object expected");
+                        message.items[i] = $root.prb.lifecycle.UpdatePool.Item.fromObject(object.items[i]);
+                    }
                 }
-            }
-            return null;
-        };
+                return message;
+            };
 
-        RequestKickWorker.fromObject = function fromObject(object) {
-            if (object instanceof $root.prb.RequestKickWorker)
+            UpdatePool.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.arrays || options.defaults)
+                    object.items = [];
+                if (message.items && message.items.length) {
+                    object.items = [];
+                    for (let j = 0; j < message.items.length; ++j)
+                        object.items[j] = $root.prb.lifecycle.UpdatePool.Item.toObject(message.items[j], options);
+                }
                 return object;
-            let message = new $root.prb.RequestKickWorker();
-            if (object.requests) {
-                if (!Array.isArray(object.requests))
-                    throw TypeError(".prb.RequestKickWorker.requests: array expected");
-                message.requests = [];
-                for (let i = 0; i < object.requests.length; ++i) {
-                    if (typeof object.requests[i] !== "object")
-                        throw TypeError(".prb.RequestKickWorker.requests: object expected");
-                    message.requests[i] = $root.prb.LifecycleActionRequest.fromObject(object.requests[i]);
+            };
+
+            UpdatePool.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            UpdatePool.Item = (function() {
+
+                function Item(properties) {
+                    if (properties)
+                        for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
                 }
+
+                Item.prototype.id = null;
+                Item.prototype.pool = null;
+
+                Item.create = function create(properties) {
+                    return new Item(properties);
+                };
+
+                Item.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                        $root.prb.PoolOrWorkerQueryIdentity.encode(message.id, writer.uint32(10).fork()).ldelim();
+                    if (message.pool != null && Object.hasOwnProperty.call(message, "pool"))
+                        $root.prb.db.Pool.encode(message.pool, writer.uint32(18).fork()).ldelim();
+                    return writer;
+                };
+
+                Item.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                Item.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.UpdatePool.Item();
+                    while (reader.pos < end) {
+                        let tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.id = $root.prb.PoolOrWorkerQueryIdentity.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            message.pool = $root.prb.db.Pool.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                Item.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                Item.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.id != null && message.hasOwnProperty("id")) {
+                        let error = $root.prb.PoolOrWorkerQueryIdentity.verify(message.id);
+                        if (error)
+                            return "id." + error;
+                    }
+                    if (message.pool != null && message.hasOwnProperty("pool")) {
+                        let error = $root.prb.db.Pool.verify(message.pool);
+                        if (error)
+                            return "pool." + error;
+                    }
+                    return null;
+                };
+
+                Item.fromObject = function fromObject(object) {
+                    if (object instanceof $root.prb.lifecycle.UpdatePool.Item)
+                        return object;
+                    let message = new $root.prb.lifecycle.UpdatePool.Item();
+                    if (object.id != null) {
+                        if (typeof object.id !== "object")
+                            throw TypeError(".prb.lifecycle.UpdatePool.Item.id: object expected");
+                        message.id = $root.prb.PoolOrWorkerQueryIdentity.fromObject(object.id);
+                    }
+                    if (object.pool != null) {
+                        if (typeof object.pool !== "object")
+                            throw TypeError(".prb.lifecycle.UpdatePool.Item.pool: object expected");
+                        message.pool = $root.prb.db.Pool.fromObject(object.pool);
+                    }
+                    return message;
+                };
+
+                Item.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    let object = {};
+                    if (options.defaults) {
+                        object.id = null;
+                        object.pool = null;
+                    }
+                    if (message.id != null && message.hasOwnProperty("id"))
+                        object.id = $root.prb.PoolOrWorkerQueryIdentity.toObject(message.id, options);
+                    if (message.pool != null && message.hasOwnProperty("pool"))
+                        object.pool = $root.prb.db.Pool.toObject(message.pool, options);
+                    return object;
+                };
+
+                Item.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return Item;
+            })();
+
+            return UpdatePool;
+        })();
+
+        lifecycle.CreateWorker = (function() {
+
+            function CreateWorker(properties) {
+                this.workers = [];
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
             }
-            return message;
-        };
 
-        RequestKickWorker.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            let object = {};
-            if (options.arrays || options.defaults)
-                object.requests = [];
-            if (message.requests && message.requests.length) {
-                object.requests = [];
-                for (let j = 0; j < message.requests.length; ++j)
-                    object.requests[j] = $root.prb.LifecycleActionRequest.toObject(message.requests[j], options);
+            CreateWorker.prototype.workers = $util.emptyArray;
+
+            CreateWorker.create = function create(properties) {
+                return new CreateWorker(properties);
+            };
+
+            CreateWorker.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.workers != null && message.workers.length)
+                    for (let i = 0; i < message.workers.length; ++i)
+                        $root.prb.db.Worker.encode(message.workers[i], writer.uint32(10).fork()).ldelim();
+                return writer;
+            };
+
+            CreateWorker.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            CreateWorker.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.CreateWorker();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.workers && message.workers.length))
+                            message.workers = [];
+                        message.workers.push($root.prb.db.Worker.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+
+            CreateWorker.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            CreateWorker.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.workers != null && message.hasOwnProperty("workers")) {
+                    if (!Array.isArray(message.workers))
+                        return "workers: array expected";
+                    for (let i = 0; i < message.workers.length; ++i) {
+                        let error = $root.prb.db.Worker.verify(message.workers[i]);
+                        if (error)
+                            return "workers." + error;
+                    }
+                }
+                return null;
+            };
+
+            CreateWorker.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.CreateWorker)
+                    return object;
+                let message = new $root.prb.lifecycle.CreateWorker();
+                if (object.workers) {
+                    if (!Array.isArray(object.workers))
+                        throw TypeError(".prb.lifecycle.CreateWorker.workers: array expected");
+                    message.workers = [];
+                    for (let i = 0; i < object.workers.length; ++i) {
+                        if (typeof object.workers[i] !== "object")
+                            throw TypeError(".prb.lifecycle.CreateWorker.workers: object expected");
+                        message.workers[i] = $root.prb.db.Worker.fromObject(object.workers[i]);
+                    }
+                }
+                return message;
+            };
+
+            CreateWorker.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.arrays || options.defaults)
+                    object.workers = [];
+                if (message.workers && message.workers.length) {
+                    object.workers = [];
+                    for (let j = 0; j < message.workers.length; ++j)
+                        object.workers[j] = $root.prb.db.Worker.toObject(message.workers[j], options);
+                }
+                return object;
+            };
+
+            CreateWorker.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return CreateWorker;
+        })();
+
+        lifecycle.UpdateWorker = (function() {
+
+            function UpdateWorker(properties) {
+                this.items = [];
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
             }
-            return object;
-        };
 
-        RequestKickWorker.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
+            UpdateWorker.prototype.items = $util.emptyArray;
 
-        return RequestKickWorker;
+            UpdateWorker.create = function create(properties) {
+                return new UpdateWorker(properties);
+            };
+
+            UpdateWorker.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.items != null && message.items.length)
+                    for (let i = 0; i < message.items.length; ++i)
+                        $root.prb.lifecycle.UpdateWorker.Item.encode(message.items[i], writer.uint32(10).fork()).ldelim();
+                return writer;
+            };
+
+            UpdateWorker.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            UpdateWorker.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.UpdateWorker();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.items && message.items.length))
+                            message.items = [];
+                        message.items.push($root.prb.lifecycle.UpdateWorker.Item.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+
+            UpdateWorker.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            UpdateWorker.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.items != null && message.hasOwnProperty("items")) {
+                    if (!Array.isArray(message.items))
+                        return "items: array expected";
+                    for (let i = 0; i < message.items.length; ++i) {
+                        let error = $root.prb.lifecycle.UpdateWorker.Item.verify(message.items[i]);
+                        if (error)
+                            return "items." + error;
+                    }
+                }
+                return null;
+            };
+
+            UpdateWorker.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.UpdateWorker)
+                    return object;
+                let message = new $root.prb.lifecycle.UpdateWorker();
+                if (object.items) {
+                    if (!Array.isArray(object.items))
+                        throw TypeError(".prb.lifecycle.UpdateWorker.items: array expected");
+                    message.items = [];
+                    for (let i = 0; i < object.items.length; ++i) {
+                        if (typeof object.items[i] !== "object")
+                            throw TypeError(".prb.lifecycle.UpdateWorker.items: object expected");
+                        message.items[i] = $root.prb.lifecycle.UpdateWorker.Item.fromObject(object.items[i]);
+                    }
+                }
+                return message;
+            };
+
+            UpdateWorker.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.arrays || options.defaults)
+                    object.items = [];
+                if (message.items && message.items.length) {
+                    object.items = [];
+                    for (let j = 0; j < message.items.length; ++j)
+                        object.items[j] = $root.prb.lifecycle.UpdateWorker.Item.toObject(message.items[j], options);
+                }
+                return object;
+            };
+
+            UpdateWorker.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            UpdateWorker.Item = (function() {
+
+                function Item(properties) {
+                    if (properties)
+                        for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                Item.prototype.id = null;
+                Item.prototype.worker = null;
+
+                Item.create = function create(properties) {
+                    return new Item(properties);
+                };
+
+                Item.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                        $root.prb.PoolOrWorkerQueryIdentity.encode(message.id, writer.uint32(10).fork()).ldelim();
+                    if (message.worker != null && Object.hasOwnProperty.call(message, "worker"))
+                        $root.prb.db.Worker.encode(message.worker, writer.uint32(18).fork()).ldelim();
+                    return writer;
+                };
+
+                Item.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                Item.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.UpdateWorker.Item();
+                    while (reader.pos < end) {
+                        let tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.id = $root.prb.PoolOrWorkerQueryIdentity.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            message.worker = $root.prb.db.Worker.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                Item.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                Item.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.id != null && message.hasOwnProperty("id")) {
+                        let error = $root.prb.PoolOrWorkerQueryIdentity.verify(message.id);
+                        if (error)
+                            return "id." + error;
+                    }
+                    if (message.worker != null && message.hasOwnProperty("worker")) {
+                        let error = $root.prb.db.Worker.verify(message.worker);
+                        if (error)
+                            return "worker." + error;
+                    }
+                    return null;
+                };
+
+                Item.fromObject = function fromObject(object) {
+                    if (object instanceof $root.prb.lifecycle.UpdateWorker.Item)
+                        return object;
+                    let message = new $root.prb.lifecycle.UpdateWorker.Item();
+                    if (object.id != null) {
+                        if (typeof object.id !== "object")
+                            throw TypeError(".prb.lifecycle.UpdateWorker.Item.id: object expected");
+                        message.id = $root.prb.PoolOrWorkerQueryIdentity.fromObject(object.id);
+                    }
+                    if (object.worker != null) {
+                        if (typeof object.worker !== "object")
+                            throw TypeError(".prb.lifecycle.UpdateWorker.Item.worker: object expected");
+                        message.worker = $root.prb.db.Worker.fromObject(object.worker);
+                    }
+                    return message;
+                };
+
+                Item.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    let object = {};
+                    if (options.defaults) {
+                        object.id = null;
+                        object.worker = null;
+                    }
+                    if (message.id != null && message.hasOwnProperty("id"))
+                        object.id = $root.prb.PoolOrWorkerQueryIdentity.toObject(message.id, options);
+                    if (message.worker != null && message.hasOwnProperty("worker"))
+                        object.worker = $root.prb.db.Worker.toObject(message.worker, options);
+                    return object;
+                };
+
+                Item.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return Item;
+            })();
+
+            return UpdateWorker;
+        })();
+
+        lifecycle.PoolList = (function() {
+
+            function PoolList(properties) {
+                this.pools = [];
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+
+            PoolList.prototype.pools = $util.emptyArray;
+
+            PoolList.create = function create(properties) {
+                return new PoolList(properties);
+            };
+
+            PoolList.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.pools != null && message.pools.length)
+                    for (let i = 0; i < message.pools.length; ++i)
+                        $root.prb.db.Pool.encode(message.pools[i], writer.uint32(10).fork()).ldelim();
+                return writer;
+            };
+
+            PoolList.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            PoolList.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.PoolList();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.pools && message.pools.length))
+                            message.pools = [];
+                        message.pools.push($root.prb.db.Pool.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+
+            PoolList.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            PoolList.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.pools != null && message.hasOwnProperty("pools")) {
+                    if (!Array.isArray(message.pools))
+                        return "pools: array expected";
+                    for (let i = 0; i < message.pools.length; ++i) {
+                        let error = $root.prb.db.Pool.verify(message.pools[i]);
+                        if (error)
+                            return "pools." + error;
+                    }
+                }
+                return null;
+            };
+
+            PoolList.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.PoolList)
+                    return object;
+                let message = new $root.prb.lifecycle.PoolList();
+                if (object.pools) {
+                    if (!Array.isArray(object.pools))
+                        throw TypeError(".prb.lifecycle.PoolList.pools: array expected");
+                    message.pools = [];
+                    for (let i = 0; i < object.pools.length; ++i) {
+                        if (typeof object.pools[i] !== "object")
+                            throw TypeError(".prb.lifecycle.PoolList.pools: object expected");
+                        message.pools[i] = $root.prb.db.Pool.fromObject(object.pools[i]);
+                    }
+                }
+                return message;
+            };
+
+            PoolList.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.arrays || options.defaults)
+                    object.pools = [];
+                if (message.pools && message.pools.length) {
+                    object.pools = [];
+                    for (let j = 0; j < message.pools.length; ++j)
+                        object.pools[j] = $root.prb.db.Pool.toObject(message.pools[j], options);
+                }
+                return object;
+            };
+
+            PoolList.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return PoolList;
+        })();
+
+        lifecycle.WorkerList = (function() {
+
+            function WorkerList(properties) {
+                this.workers = [];
+                if (properties)
+                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+
+            WorkerList.prototype.workers = $util.emptyArray;
+
+            WorkerList.create = function create(properties) {
+                return new WorkerList(properties);
+            };
+
+            WorkerList.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.workers != null && message.workers.length)
+                    for (let i = 0; i < message.workers.length; ++i)
+                        $root.prb.db.Worker.encode(message.workers[i], writer.uint32(10).fork()).ldelim();
+                return writer;
+            };
+
+            WorkerList.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            WorkerList.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.WorkerList();
+                while (reader.pos < end) {
+                    let tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.workers && message.workers.length))
+                            message.workers = [];
+                        message.workers.push($root.prb.db.Worker.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+
+            WorkerList.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            WorkerList.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.workers != null && message.hasOwnProperty("workers")) {
+                    if (!Array.isArray(message.workers))
+                        return "workers: array expected";
+                    for (let i = 0; i < message.workers.length; ++i) {
+                        let error = $root.prb.db.Worker.verify(message.workers[i]);
+                        if (error)
+                            return "workers." + error;
+                    }
+                }
+                return null;
+            };
+
+            WorkerList.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.WorkerList)
+                    return object;
+                let message = new $root.prb.lifecycle.WorkerList();
+                if (object.workers) {
+                    if (!Array.isArray(object.workers))
+                        throw TypeError(".prb.lifecycle.WorkerList.workers: array expected");
+                    message.workers = [];
+                    for (let i = 0; i < object.workers.length; ++i) {
+                        if (typeof object.workers[i] !== "object")
+                            throw TypeError(".prb.lifecycle.WorkerList.workers: object expected");
+                        message.workers[i] = $root.prb.db.Worker.fromObject(object.workers[i]);
+                    }
+                }
+                return message;
+            };
+
+            WorkerList.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                let object = {};
+                if (options.arrays || options.defaults)
+                    object.workers = [];
+                if (message.workers && message.workers.length) {
+                    object.workers = [];
+                    for (let j = 0; j < message.workers.length; ++j)
+                        object.workers[j] = $root.prb.db.Worker.toObject(message.workers[j], options);
+                }
+                return object;
+            };
+
+            WorkerList.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return WorkerList;
+        })();
+
+        return lifecycle;
     })();
 
     return prb;

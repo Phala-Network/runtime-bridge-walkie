@@ -32,6 +32,10 @@ declare const schema: {
             "bridgeIdentity": {
               "type": "string",
               "id": 5
+            },
+            "auth": {
+              "type": "AuthStatus",
+              "id": 6
             }
           }
         },
@@ -103,11 +107,59 @@ declare const schema: {
             }
           }
         },
+        "AuthStatus": {
+          "values": {
+            "AS_NONE": 0,
+            "AS_NEED_AUTH": 1,
+            "AS_GRANTED": 2,
+            "AS_REJECTED": 3,
+            "AS_BLOCKED": 4
+          }
+        },
+        "AuthType": {
+          "values": {
+            "AT_NONE": 0,
+            "AT_PSK": 1,
+            "AT_WHITE_LIST": 2
+          }
+        },
+        "AuthRequest": {
+          "fields": {
+            "type": {
+              "type": "AuthType",
+              "id": 1
+            },
+            "authString": {
+              "type": "string",
+              "id": 2
+            }
+          }
+        },
+        "AuthResponse": {
+          "fields": {
+            "status": {
+              "type": "AuthStatus",
+              "id": 1
+            },
+            "type": {
+              "type": "AuthType",
+              "id": 2
+            },
+            "peerId": {
+              "type": "string",
+              "id": 3
+            }
+          }
+        },
         "WalkieRpc": {
           "methods": {
             "Hello": {
               "requestType": "WalkieSystemInfo",
               "responseType": "WalkieSystemInfo"
+            },
+            "Auth": {
+              "requestType": "AuthRequest",
+              "responseType": "AuthResponse"
             },
             "GetDataProviderInfo": {
               "requestType": "Empty",
@@ -127,27 +179,39 @@ declare const schema: {
             },
             "ListPool": {
               "requestType": "Empty",
-              "responseType": "data_provider.PoolList"
+              "responseType": "lifecycle.PoolList"
             },
             "CreatePool": {
-              "requestType": "data_provider.CreatePool",
-              "responseType": "data_provider.PoolList"
+              "requestType": "lifecycle.CreatePool",
+              "responseType": "lifecycle.PoolList"
             },
             "UpdatePool": {
-              "requestType": "data_provider.UpdatePool",
-              "responseType": "data_provider.PoolList"
+              "requestType": "lifecycle.UpdatePool",
+              "responseType": "lifecycle.PoolList"
             },
             "ListWorker": {
               "requestType": "Empty",
-              "responseType": "data_provider.WorkerList"
+              "responseType": "lifecycle.WorkerList"
             },
             "CreateWorker": {
-              "requestType": "data_provider.CreateWorker",
-              "responseType": "data_provider.WorkerList"
+              "requestType": "lifecycle.CreateWorker",
+              "responseType": "lifecycle.WorkerList"
             },
             "UpdateWorker": {
-              "requestType": "data_provider.UpdateWorker",
-              "responseType": "data_provider.WorkerList"
+              "requestType": "lifecycle.UpdateWorker",
+              "responseType": "lifecycle.WorkerList"
+            },
+            "RestartWorker": {
+              "requestType": "lifecycle.LifecycleActionRequest",
+              "responseType": "WorkerStateUpdate"
+            },
+            "KickWorker": {
+              "requestType": "lifecycle.LifecycleActionRequest",
+              "responseType": "WorkerStateUpdate"
+            },
+            "GetWorkerStatus": {
+              "requestType": "lifecycle.LifecycleActionRequest",
+              "responseType": "WorkerStateUpdate"
             }
           }
         },
@@ -618,88 +682,6 @@ declare const schema: {
                   "id": 3
                 }
               }
-            },
-            "CreatePool": {
-              "fields": {
-                "pools": {
-                  "rule": "repeated",
-                  "type": "db.Pool",
-                  "id": 1
-                }
-              }
-            },
-            "UpdatePool": {
-              "fields": {
-                "items": {
-                  "rule": "repeated",
-                  "type": "Item",
-                  "id": 1
-                }
-              },
-              "nested": {
-                "Item": {
-                  "fields": {
-                    "id": {
-                      "type": "PoolOrWorkerQueryIdentity",
-                      "id": 1
-                    },
-                    "pool": {
-                      "type": "db.Pool",
-                      "id": 2
-                    }
-                  }
-                }
-              }
-            },
-            "CreateWorker": {
-              "fields": {
-                "workers": {
-                  "rule": "repeated",
-                  "type": "db.Worker",
-                  "id": 1
-                }
-              }
-            },
-            "UpdateWorker": {
-              "fields": {
-                "items": {
-                  "rule": "repeated",
-                  "type": "Item",
-                  "id": 1
-                }
-              },
-              "nested": {
-                "Item": {
-                  "fields": {
-                    "id": {
-                      "type": "PoolOrWorkerQueryIdentity",
-                      "id": 1
-                    },
-                    "worker": {
-                      "type": "db.Worker",
-                      "id": 2
-                    }
-                  }
-                }
-              }
-            },
-            "PoolList": {
-              "fields": {
-                "pools": {
-                  "rule": "repeated",
-                  "type": "db.Pool",
-                  "id": 1
-                }
-              }
-            },
-            "WorkerList": {
-              "fields": {
-                "workers": {
-                  "rule": "repeated",
-                  "type": "db.Worker",
-                  "id": 1
-                }
-              }
             }
           }
         },
@@ -804,63 +786,119 @@ declare const schema: {
             }
           }
         },
-        "LifecycleManagerStateUpdate": {
-          "fields": {
-            "hostname": {
-              "type": "string",
-              "id": 1
+        "lifecycle": {
+          "nested": {
+            "LifecycleActionRequest": {
+              "fields": {
+                "id": {
+                  "type": "PoolOrWorkerQueryIdentity",
+                  "id": 1
+                },
+                "reason": {
+                  "type": "string",
+                  "id": 2
+                }
+              }
             },
-            "pools": {
-              "rule": "repeated",
-              "type": "db.Pool",
-              "id": 2
+            "RequestStartWorkerLifecycle": {
+              "fields": {
+                "requests": {
+                  "rule": "repeated",
+                  "type": "LifecycleActionRequest",
+                  "id": 1
+                }
+              }
             },
-            "workers": {
-              "rule": "repeated",
-              "type": "db.Worker",
-              "id": 3
-            }
-          }
-        },
-        "CallOnlineLifecycleManager": {
-          "fields": {
-            "isResponse": {
-              "type": "bool",
-              "id": 1
+            "RequestKickWorker": {
+              "fields": {
+                "requests": {
+                  "rule": "repeated",
+                  "type": "LifecycleActionRequest",
+                  "id": 1
+                }
+              }
             },
-            "hostname": {
-              "type": "string",
-              "id": 2
-            }
-          }
-        },
-        "LifecycleActionRequest": {
-          "fields": {
-            "id": {
-              "type": "PoolOrWorkerQueryIdentity",
-              "id": 1
+            "CreatePool": {
+              "fields": {
+                "pools": {
+                  "rule": "repeated",
+                  "type": "db.Pool",
+                  "id": 1
+                }
+              }
             },
-            "reason": {
-              "type": "string",
-              "id": 2
-            }
-          }
-        },
-        "RequestStartWorkerLifecycle": {
-          "fields": {
-            "requests": {
-              "rule": "repeated",
-              "type": "LifecycleActionRequest",
-              "id": 1
-            }
-          }
-        },
-        "RequestKickWorker": {
-          "fields": {
-            "requests": {
-              "rule": "repeated",
-              "type": "LifecycleActionRequest",
-              "id": 1
+            "UpdatePool": {
+              "fields": {
+                "items": {
+                  "rule": "repeated",
+                  "type": "Item",
+                  "id": 1
+                }
+              },
+              "nested": {
+                "Item": {
+                  "fields": {
+                    "id": {
+                      "type": "PoolOrWorkerQueryIdentity",
+                      "id": 1
+                    },
+                    "pool": {
+                      "type": "db.Pool",
+                      "id": 2
+                    }
+                  }
+                }
+              }
+            },
+            "CreateWorker": {
+              "fields": {
+                "workers": {
+                  "rule": "repeated",
+                  "type": "db.Worker",
+                  "id": 1
+                }
+              }
+            },
+            "UpdateWorker": {
+              "fields": {
+                "items": {
+                  "rule": "repeated",
+                  "type": "Item",
+                  "id": 1
+                }
+              },
+              "nested": {
+                "Item": {
+                  "fields": {
+                    "id": {
+                      "type": "PoolOrWorkerQueryIdentity",
+                      "id": 1
+                    },
+                    "worker": {
+                      "type": "db.Worker",
+                      "id": 2
+                    }
+                  }
+                }
+              }
+            },
+            "PoolList": {
+              "fields": {
+                "pools": {
+                  "rule": "repeated",
+                  "type": "db.Pool",
+                  "id": 1
+                }
+              }
+            },
+            "WorkerList": {
+              "fields": {
+                "workers": {
+                  "rule": "repeated",
+                  "type": "db.Worker",
+                  "id": 1
+                }
+              }
             }
           }
         }
