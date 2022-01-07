@@ -109,7 +109,9 @@ export const warpRpcRequester = <R extends prb.WalkieRoles>(
         stream,
         concatBuffer
       )) as _BufferList
-      rawResponse = prb.WalkieRpcResponseWrapper.decode(responseBuffer._bufs[0])
+      rawResponse = prb.WalkieRpcResponseWrapper.decode(
+        Buffer.concat(responseBuffer._bufs)
+      )
 
       if (rawResponse.hasError) {
         hasError = true
@@ -145,7 +147,7 @@ export const handleRpc = <R extends prb.WalkieRoles>(
         let rawRequest: WalkieRpcRequestWrapper | null = null
         try {
           rawRequest = WalkieRpcRequestWrapper.decode(
-            ((await source) as _BufferList)._bufs[0]
+            Buffer.concat(((await source) as _BufferList)._bufs)
           )
           return intoChunks(
             await processRpcRequest(rawRequest, connection, options),
