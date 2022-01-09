@@ -202,15 +202,15 @@ declare const schema: {
               "responseType": "lifecycle.WorkerList"
             },
             "RestartWorker": {
-              "requestType": "lifecycle.LifecycleActionRequest",
+              "requestType": "lifecycle.UuidQueryRequest",
               "responseType": "WorkerStateUpdate"
             },
             "KickWorker": {
-              "requestType": "lifecycle.LifecycleActionRequest",
+              "requestType": "lifecycle.UuidQueryRequest",
               "responseType": "WorkerStateUpdate"
             },
             "GetWorkerStatus": {
-              "requestType": "lifecycle.LifecycleActionRequest",
+              "requestType": "lifecycle.UuidQueryRequest",
               "responseType": "WorkerStateUpdate"
             }
           }
@@ -788,32 +788,11 @@ declare const schema: {
         },
         "lifecycle": {
           "nested": {
-            "LifecycleActionRequest": {
+            "UuidQueryRequest": {
               "fields": {
-                "id": {
-                  "type": "PoolOrWorkerQueryIdentity",
-                  "id": 1
-                },
-                "reason": {
+                "ids": {
+                  "rule": "repeated",
                   "type": "string",
-                  "id": 2
-                }
-              }
-            },
-            "RequestStartWorkerLifecycle": {
-              "fields": {
-                "requests": {
-                  "rule": "repeated",
-                  "type": "LifecycleActionRequest",
-                  "id": 1
-                }
-              }
-            },
-            "RequestKickWorker": {
-              "fields": {
-                "requests": {
-                  "rule": "repeated",
-                  "type": "LifecycleActionRequest",
                   "id": 1
                 }
               }

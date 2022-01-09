@@ -5,20 +5,9 @@ package prb.lifecycle;
 import "worker.proto";
 import "db.proto";
 
-
-message LifecycleActionRequest {
-  PoolOrWorkerQueryIdentity id = 1;
-  string reason = 2; // currently not saved to audit logs
+message UuidQueryRequest {
+  repeated string ids = 1;
 }
-
-message RequestStartWorkerLifecycle {
-  repeated LifecycleActionRequest requests = 1;
-}
-
-message RequestKickWorker {
-  repeated LifecycleActionRequest requests = 1;
-}
-
 
 message CreatePool {
   // explicitly setting uuid will be ignored.

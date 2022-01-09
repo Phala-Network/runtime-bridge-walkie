@@ -118,7 +118,7 @@ export const createPeerManager = (
           },
           dial,
         }
-        logger.info(`Peer saved: ${readablePeerId}`)
+        logger.debug(`Peer updated: ${readablePeerId}`)
       })
       .catch((e) => {
         logger.debug(`Failed to handshake with peer ${readablePeerId}`, e)

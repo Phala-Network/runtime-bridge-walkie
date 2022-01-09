@@ -1099,17 +1099,17 @@ export const prb = $root.prb = (() => {
 
 
         Object.defineProperty(WalkieRpc.prototype.restartWorker = function restartWorker(request, callback) {
-            return this.rpcCall(restartWorker, $root.prb.lifecycle.LifecycleActionRequest, $root.prb.WorkerStateUpdate, request, callback);
+            return this.rpcCall(restartWorker, $root.prb.lifecycle.UuidQueryRequest, $root.prb.WorkerStateUpdate, request, callback);
         }, "name", { value: "RestartWorker" });
 
 
         Object.defineProperty(WalkieRpc.prototype.kickWorker = function kickWorker(request, callback) {
-            return this.rpcCall(kickWorker, $root.prb.lifecycle.LifecycleActionRequest, $root.prb.WorkerStateUpdate, request, callback);
+            return this.rpcCall(kickWorker, $root.prb.lifecycle.UuidQueryRequest, $root.prb.WorkerStateUpdate, request, callback);
         }, "name", { value: "KickWorker" });
 
 
         Object.defineProperty(WalkieRpc.prototype.getWorkerStatus = function getWorkerStatus(request, callback) {
-            return this.rpcCall(getWorkerStatus, $root.prb.lifecycle.LifecycleActionRequest, $root.prb.WorkerStateUpdate, request, callback);
+            return this.rpcCall(getWorkerStatus, $root.prb.lifecycle.UuidQueryRequest, $root.prb.WorkerStateUpdate, request, callback);
         }, "name", { value: "GetWorkerStatus" });
 
         return WalkieRpc;
@@ -4888,48 +4888,46 @@ export const prb = $root.prb = (() => {
 
         const lifecycle = {};
 
-        lifecycle.LifecycleActionRequest = (function() {
+        lifecycle.UuidQueryRequest = (function() {
 
-            function LifecycleActionRequest(properties) {
+            function UuidQueryRequest(properties) {
+                this.ids = [];
                 if (properties)
                     for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
 
-            LifecycleActionRequest.prototype.id = null;
-            LifecycleActionRequest.prototype.reason = "";
+            UuidQueryRequest.prototype.ids = $util.emptyArray;
 
-            LifecycleActionRequest.create = function create(properties) {
-                return new LifecycleActionRequest(properties);
+            UuidQueryRequest.create = function create(properties) {
+                return new UuidQueryRequest(properties);
             };
 
-            LifecycleActionRequest.encode = function encode(message, writer) {
+            UuidQueryRequest.encode = function encode(message, writer) {
                 if (!writer)
                     writer = $Writer.create();
-                if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-                    $root.prb.PoolOrWorkerQueryIdentity.encode(message.id, writer.uint32(10).fork()).ldelim();
-                if (message.reason != null && Object.hasOwnProperty.call(message, "reason"))
-                    writer.uint32(18).string(message.reason);
+                if (message.ids != null && message.ids.length)
+                    for (let i = 0; i < message.ids.length; ++i)
+                        writer.uint32(10).string(message.ids[i]);
                 return writer;
             };
 
-            LifecycleActionRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            UuidQueryRequest.encodeDelimited = function encodeDelimited(message, writer) {
                 return this.encode(message, writer).ldelim();
             };
 
-            LifecycleActionRequest.decode = function decode(reader, length) {
+            UuidQueryRequest.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.LifecycleActionRequest();
+                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.UuidQueryRequest();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.id = $root.prb.PoolOrWorkerQueryIdentity.decode(reader, reader.uint32());
-                        break;
-                    case 2:
-                        message.reason = reader.string();
+                        if (!(message.ids && message.ids.length))
+                            message.ids = [];
+                        message.ids.push(reader.string());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -4939,276 +4937,58 @@ export const prb = $root.prb = (() => {
                 return message;
             };
 
-            LifecycleActionRequest.decodeDelimited = function decodeDelimited(reader) {
+            UuidQueryRequest.decodeDelimited = function decodeDelimited(reader) {
                 if (!(reader instanceof $Reader))
                     reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
-            LifecycleActionRequest.verify = function verify(message) {
+            UuidQueryRequest.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.id != null && message.hasOwnProperty("id")) {
-                    let error = $root.prb.PoolOrWorkerQueryIdentity.verify(message.id);
-                    if (error)
-                        return "id." + error;
-                }
-                if (message.reason != null && message.hasOwnProperty("reason"))
-                    if (!$util.isString(message.reason))
-                        return "reason: string expected";
-                return null;
-            };
-
-            LifecycleActionRequest.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.lifecycle.LifecycleActionRequest)
-                    return object;
-                let message = new $root.prb.lifecycle.LifecycleActionRequest();
-                if (object.id != null) {
-                    if (typeof object.id !== "object")
-                        throw TypeError(".prb.lifecycle.LifecycleActionRequest.id: object expected");
-                    message.id = $root.prb.PoolOrWorkerQueryIdentity.fromObject(object.id);
-                }
-                if (object.reason != null)
-                    message.reason = String(object.reason);
-                return message;
-            };
-
-            LifecycleActionRequest.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
-                let object = {};
-                if (options.defaults) {
-                    object.id = null;
-                    object.reason = "";
-                }
-                if (message.id != null && message.hasOwnProperty("id"))
-                    object.id = $root.prb.PoolOrWorkerQueryIdentity.toObject(message.id, options);
-                if (message.reason != null && message.hasOwnProperty("reason"))
-                    object.reason = message.reason;
-                return object;
-            };
-
-            LifecycleActionRequest.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-            };
-
-            return LifecycleActionRequest;
-        })();
-
-        lifecycle.RequestStartWorkerLifecycle = (function() {
-
-            function RequestStartWorkerLifecycle(properties) {
-                this.requests = [];
-                if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                        if (properties[keys[i]] != null)
-                            this[keys[i]] = properties[keys[i]];
-            }
-
-            RequestStartWorkerLifecycle.prototype.requests = $util.emptyArray;
-
-            RequestStartWorkerLifecycle.create = function create(properties) {
-                return new RequestStartWorkerLifecycle(properties);
-            };
-
-            RequestStartWorkerLifecycle.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.requests != null && message.requests.length)
-                    for (let i = 0; i < message.requests.length; ++i)
-                        $root.prb.lifecycle.LifecycleActionRequest.encode(message.requests[i], writer.uint32(10).fork()).ldelim();
-                return writer;
-            };
-
-            RequestStartWorkerLifecycle.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-
-            RequestStartWorkerLifecycle.decode = function decode(reader, length) {
-                if (!(reader instanceof $Reader))
-                    reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.RequestStartWorkerLifecycle();
-                while (reader.pos < end) {
-                    let tag = reader.uint32();
-                    switch (tag >>> 3) {
-                    case 1:
-                        if (!(message.requests && message.requests.length))
-                            message.requests = [];
-                        message.requests.push($root.prb.lifecycle.LifecycleActionRequest.decode(reader, reader.uint32()));
-                        break;
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
-                    }
-                }
-                return message;
-            };
-
-            RequestStartWorkerLifecycle.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-
-            RequestStartWorkerLifecycle.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.requests != null && message.hasOwnProperty("requests")) {
-                    if (!Array.isArray(message.requests))
-                        return "requests: array expected";
-                    for (let i = 0; i < message.requests.length; ++i) {
-                        let error = $root.prb.lifecycle.LifecycleActionRequest.verify(message.requests[i]);
-                        if (error)
-                            return "requests." + error;
-                    }
+                if (message.ids != null && message.hasOwnProperty("ids")) {
+                    if (!Array.isArray(message.ids))
+                        return "ids: array expected";
+                    for (let i = 0; i < message.ids.length; ++i)
+                        if (!$util.isString(message.ids[i]))
+                            return "ids: string[] expected";
                 }
                 return null;
             };
 
-            RequestStartWorkerLifecycle.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.lifecycle.RequestStartWorkerLifecycle)
+            UuidQueryRequest.fromObject = function fromObject(object) {
+                if (object instanceof $root.prb.lifecycle.UuidQueryRequest)
                     return object;
-                let message = new $root.prb.lifecycle.RequestStartWorkerLifecycle();
-                if (object.requests) {
-                    if (!Array.isArray(object.requests))
-                        throw TypeError(".prb.lifecycle.RequestStartWorkerLifecycle.requests: array expected");
-                    message.requests = [];
-                    for (let i = 0; i < object.requests.length; ++i) {
-                        if (typeof object.requests[i] !== "object")
-                            throw TypeError(".prb.lifecycle.RequestStartWorkerLifecycle.requests: object expected");
-                        message.requests[i] = $root.prb.lifecycle.LifecycleActionRequest.fromObject(object.requests[i]);
-                    }
+                let message = new $root.prb.lifecycle.UuidQueryRequest();
+                if (object.ids) {
+                    if (!Array.isArray(object.ids))
+                        throw TypeError(".prb.lifecycle.UuidQueryRequest.ids: array expected");
+                    message.ids = [];
+                    for (let i = 0; i < object.ids.length; ++i)
+                        message.ids[i] = String(object.ids[i]);
                 }
                 return message;
             };
 
-            RequestStartWorkerLifecycle.toObject = function toObject(message, options) {
+            UuidQueryRequest.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 let object = {};
                 if (options.arrays || options.defaults)
-                    object.requests = [];
-                if (message.requests && message.requests.length) {
-                    object.requests = [];
-                    for (let j = 0; j < message.requests.length; ++j)
-                        object.requests[j] = $root.prb.lifecycle.LifecycleActionRequest.toObject(message.requests[j], options);
+                    object.ids = [];
+                if (message.ids && message.ids.length) {
+                    object.ids = [];
+                    for (let j = 0; j < message.ids.length; ++j)
+                        object.ids[j] = message.ids[j];
                 }
                 return object;
             };
 
-            RequestStartWorkerLifecycle.prototype.toJSON = function toJSON() {
+            UuidQueryRequest.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
 
-            return RequestStartWorkerLifecycle;
-        })();
-
-        lifecycle.RequestKickWorker = (function() {
-
-            function RequestKickWorker(properties) {
-                this.requests = [];
-                if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                        if (properties[keys[i]] != null)
-                            this[keys[i]] = properties[keys[i]];
-            }
-
-            RequestKickWorker.prototype.requests = $util.emptyArray;
-
-            RequestKickWorker.create = function create(properties) {
-                return new RequestKickWorker(properties);
-            };
-
-            RequestKickWorker.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.requests != null && message.requests.length)
-                    for (let i = 0; i < message.requests.length; ++i)
-                        $root.prb.lifecycle.LifecycleActionRequest.encode(message.requests[i], writer.uint32(10).fork()).ldelim();
-                return writer;
-            };
-
-            RequestKickWorker.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-
-            RequestKickWorker.decode = function decode(reader, length) {
-                if (!(reader instanceof $Reader))
-                    reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.prb.lifecycle.RequestKickWorker();
-                while (reader.pos < end) {
-                    let tag = reader.uint32();
-                    switch (tag >>> 3) {
-                    case 1:
-                        if (!(message.requests && message.requests.length))
-                            message.requests = [];
-                        message.requests.push($root.prb.lifecycle.LifecycleActionRequest.decode(reader, reader.uint32()));
-                        break;
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
-                    }
-                }
-                return message;
-            };
-
-            RequestKickWorker.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-
-            RequestKickWorker.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.requests != null && message.hasOwnProperty("requests")) {
-                    if (!Array.isArray(message.requests))
-                        return "requests: array expected";
-                    for (let i = 0; i < message.requests.length; ++i) {
-                        let error = $root.prb.lifecycle.LifecycleActionRequest.verify(message.requests[i]);
-                        if (error)
-                            return "requests." + error;
-                    }
-                }
-                return null;
-            };
-
-            RequestKickWorker.fromObject = function fromObject(object) {
-                if (object instanceof $root.prb.lifecycle.RequestKickWorker)
-                    return object;
-                let message = new $root.prb.lifecycle.RequestKickWorker();
-                if (object.requests) {
-                    if (!Array.isArray(object.requests))
-                        throw TypeError(".prb.lifecycle.RequestKickWorker.requests: array expected");
-                    message.requests = [];
-                    for (let i = 0; i < object.requests.length; ++i) {
-                        if (typeof object.requests[i] !== "object")
-                            throw TypeError(".prb.lifecycle.RequestKickWorker.requests: object expected");
-                        message.requests[i] = $root.prb.lifecycle.LifecycleActionRequest.fromObject(object.requests[i]);
-                    }
-                }
-                return message;
-            };
-
-            RequestKickWorker.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
-                let object = {};
-                if (options.arrays || options.defaults)
-                    object.requests = [];
-                if (message.requests && message.requests.length) {
-                    object.requests = [];
-                    for (let j = 0; j < message.requests.length; ++j)
-                        object.requests[j] = $root.prb.lifecycle.LifecycleActionRequest.toObject(message.requests[j], options);
-                }
-                return object;
-            };
-
-            RequestKickWorker.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-            };
-
-            return RequestKickWorker;
+            return UuidQueryRequest;
         })();
 
         lifecycle.CreatePool = (function() {

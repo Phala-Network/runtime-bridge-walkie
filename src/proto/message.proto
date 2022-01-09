@@ -98,9 +98,9 @@ service WalkieRpc {
   rpc CreateWorker(lifecycle.CreateWorker) returns (lifecycle.WorkerList);
   rpc UpdateWorker(lifecycle.UpdateWorker) returns (lifecycle.WorkerList);
 
-  rpc RestartWorker(lifecycle.LifecycleActionRequest) returns (WorkerStateUpdate);
-  rpc KickWorker(lifecycle.LifecycleActionRequest) returns (WorkerStateUpdate);
-  rpc GetWorkerStatus(lifecycle.LifecycleActionRequest) returns (WorkerStateUpdate);
+  rpc RestartWorker(lifecycle.UuidQueryRequest) returns (WorkerStateUpdate);
+  rpc KickWorker(lifecycle.UuidQueryRequest) returns (WorkerStateUpdate);
+  rpc GetWorkerStatus(lifecycle.UuidQueryRequest) returns (WorkerStateUpdate);
 
   // trader
 }
