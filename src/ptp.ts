@@ -34,6 +34,7 @@ export type CreatePtpNodeProps<R extends prb.WalkieRoles> = {
   bridgeIdentity: PtpBridgeIdentity<R>
   listenAddresses: string[]
   bootstrapAddresses: string[]
+  enableEncryption?: boolean
   overrides?: Partial<libp2p.Libp2pOptions & libp2p.CreateOptions> | null
 }
 
@@ -59,7 +60,8 @@ export type WalkiePtpNode<R extends prb.WalkieRoles> =
 export const createPtpNode = async <R extends prb.WalkieRoles>(
   props: CreatePtpNodeProps<R>
 ): Promise<WalkiePtpNode<R>> => {
-  const { peerId, role, chainIdentity, bridgeIdentity } = props
+  const { peerId, role, chainIdentity, bridgeIdentity, enableEncryption } =
+    props
 
   const node = await libp2p.create({
     addresses: {
@@ -69,7 +71,7 @@ export const createPtpNode = async <R extends prb.WalkieRoles>(
     modules: {
       transport: [libp2p__tcp],
       streamMuxer: [libp2p__mplex],
-      connEncryption: [libp2p__noise],
+      connEncryption: enableEncryption ? [] : [libp2p__noise],
       peerDiscovery: [libp2p__bootstrap, libp2p__mdns],
       dht: libp2p__dht,
     },
@@ -79,11 +81,13 @@ export const createPtpNode = async <R extends prb.WalkieRoles>(
       },
       peerDiscovery: {
         autoDial: false,
-        bootstrap: {
-          interval: 20e3,
-          enabled: true,
-          list: props.bootstrapAddresses,
-        },
+        bootstrap: props.bootstrapAddresses?.length
+          ? {
+              interval: 20e3,
+              enabled: true,
+              list: props.bootstrapAddresses,
+            }
+          : { enabled: false },
         mdns: {
           interval: 20e3,
           enabled: true,
