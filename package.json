@@ -1,6 +1,6 @@
 {
   "name": "@phala/runtime-bridge-walkie",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "main": "dist/index.js",
   "types": "src/index.ts",
   "license": "MIT",
