@@ -20,7 +20,7 @@ import ResponseErrorType = prb.error.ResponseErrorType
 import WalkieRpcRequestWrapper = prb.WalkieRpcRequestWrapper
 import WalkieRpcResponseWrapper = prb.WalkieRpcResponseWrapper
 
-const CHUNK_SIZE = 2048
+const CHUNK_SIZE = 1048576
 const concatBuffer = (s: AsyncIterable<BufferList>) =>
   concat(s, { type: 'buffer' })
 

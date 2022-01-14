@@ -592,6 +592,10 @@ declare const schema: {
                 "paraCommittedHeight": {
                   "type": "int32",
                   "id": 11
+                },
+                "blobServerPort": {
+                  "type": "uint32",
+                  "id": 12
                 }
               }
             },

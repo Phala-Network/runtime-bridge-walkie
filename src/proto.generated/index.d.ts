@@ -626,6 +626,7 @@ export namespace prb {
             paraFetchedHeight?: (number|null);
             paraProcessedHeight?: (number|null);
             paraCommittedHeight?: (number|null);
+            blobServerPort?: (number|null);
         }
 
         class Info implements IInfo {
@@ -641,6 +642,7 @@ export namespace prb {
             public paraFetchedHeight: number;
             public paraProcessedHeight: number;
             public paraCommittedHeight: number;
+            public blobServerPort: number;
             public static create(properties?: prb.data_provider.IInfo): prb.data_provider.Info;
             public static encode(m: prb.data_provider.IInfo, w?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: prb.data_provider.IInfo, writer?: $protobuf.Writer): $protobuf.Writer;

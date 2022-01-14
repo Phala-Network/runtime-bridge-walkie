@@ -31,6 +31,8 @@ message Info {
   int32 para_fetched_height = 9;
   int32 para_processed_height = 10;
   int32 para_committed_height = 11;
+
+  uint32 blob_server_port = 12;
 }
 
 message WantBlob {

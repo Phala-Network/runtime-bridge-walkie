@@ -3255,6 +3255,7 @@ export const prb = $root.prb = (() => {
             Info.prototype.paraFetchedHeight = 0;
             Info.prototype.paraProcessedHeight = 0;
             Info.prototype.paraCommittedHeight = 0;
+            Info.prototype.blobServerPort = 0;
 
             Info.create = function create(properties) {
                 return new Info(properties);
@@ -3285,6 +3286,8 @@ export const prb = $root.prb = (() => {
                     writer.uint32(80).int32(message.paraProcessedHeight);
                 if (message.paraCommittedHeight != null && Object.hasOwnProperty.call(message, "paraCommittedHeight"))
                     writer.uint32(88).int32(message.paraCommittedHeight);
+                if (message.blobServerPort != null && Object.hasOwnProperty.call(message, "blobServerPort"))
+                    writer.uint32(96).uint32(message.blobServerPort);
                 return writer;
             };
 
@@ -3331,6 +3334,9 @@ export const prb = $root.prb = (() => {
                         break;
                     case 11:
                         message.paraCommittedHeight = reader.int32();
+                        break;
+                    case 12:
+                        message.blobServerPort = reader.uint32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3388,6 +3394,9 @@ export const prb = $root.prb = (() => {
                 if (message.paraCommittedHeight != null && message.hasOwnProperty("paraCommittedHeight"))
                     if (!$util.isInteger(message.paraCommittedHeight))
                         return "paraCommittedHeight: integer expected";
+                if (message.blobServerPort != null && message.hasOwnProperty("blobServerPort"))
+                    if (!$util.isInteger(message.blobServerPort))
+                        return "blobServerPort: integer expected";
                 return null;
             };
 
@@ -3429,6 +3438,8 @@ export const prb = $root.prb = (() => {
                     message.paraProcessedHeight = object.paraProcessedHeight | 0;
                 if (object.paraCommittedHeight != null)
                     message.paraCommittedHeight = object.paraCommittedHeight | 0;
+                if (object.blobServerPort != null)
+                    message.blobServerPort = object.blobServerPort >>> 0;
                 return message;
             };
 
@@ -3448,6 +3459,7 @@ export const prb = $root.prb = (() => {
                     object.paraFetchedHeight = 0;
                     object.paraProcessedHeight = 0;
                     object.paraCommittedHeight = 0;
+                    object.blobServerPort = 0;
                 }
                 if (message.status != null && message.hasOwnProperty("status"))
                     object.status = options.enums === String ? $root.prb.data_provider.Status[message.status] : message.status;
@@ -3471,6 +3483,8 @@ export const prb = $root.prb = (() => {
                     object.paraProcessedHeight = message.paraProcessedHeight;
                 if (message.paraCommittedHeight != null && message.hasOwnProperty("paraCommittedHeight"))
                     object.paraCommittedHeight = message.paraCommittedHeight;
+                if (message.blobServerPort != null && message.hasOwnProperty("blobServerPort"))
+                    object.blobServerPort = message.blobServerPort;
                 return object;
             };
 
