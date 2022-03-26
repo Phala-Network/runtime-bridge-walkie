@@ -1,5 +1,5 @@
 /*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
-import $protobuf from "protobufjs/minimal";
+import * as $protobuf from "protobufjs/minimal";
 
 const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
 
@@ -1101,6 +1101,11 @@ export const prb = $root.prb = (() => {
         Object.defineProperty(WalkieRpc.prototype.restartWorker = function restartWorker(request, callback) {
             return this.rpcCall(restartWorker, $root.prb.lifecycle.UuidQueryRequest, $root.prb.WorkerStateUpdate, request, callback);
         }, "name", { value: "RestartWorker" });
+
+
+        Object.defineProperty(WalkieRpc.prototype.refreshRaAndRestartWorker = function refreshRaAndRestartWorker(request, callback) {
+            return this.rpcCall(refreshRaAndRestartWorker, $root.prb.lifecycle.UuidQueryRequest, $root.prb.WorkerStateUpdate, request, callback);
+        }, "name", { value: "RefreshRaAndRestartWorker" });
 
 
         Object.defineProperty(WalkieRpc.prototype.kickWorker = function kickWorker(request, callback) {

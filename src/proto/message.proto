@@ -99,6 +99,7 @@ service WalkieRpc {
   rpc UpdateWorker(lifecycle.UpdateWorker) returns (lifecycle.WorkerList);
 
   rpc RestartWorker(lifecycle.UuidQueryRequest) returns (WorkerStateUpdate);
+  rpc RefreshRaAndRestartWorker(lifecycle.UuidQueryRequest) returns (WorkerStateUpdate);
   rpc KickWorker(lifecycle.UuidQueryRequest) returns (WorkerStateUpdate);
   rpc GetWorkerStatus(lifecycle.UuidQueryRequest) returns (WorkerStateUpdate);
 

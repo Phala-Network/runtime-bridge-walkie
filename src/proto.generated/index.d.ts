@@ -198,6 +198,8 @@ export namespace prb {
         public updateWorker(request: prb.lifecycle.IUpdateWorker): Promise<prb.lifecycle.WorkerList>;
         public restartWorker(request: prb.lifecycle.IUuidQueryRequest, callback: prb.WalkieRpc.RestartWorkerCallback): void;
         public restartWorker(request: prb.lifecycle.IUuidQueryRequest): Promise<prb.WorkerStateUpdate>;
+        public refreshRaAndRestartWorker(request: prb.lifecycle.IUuidQueryRequest, callback: prb.WalkieRpc.RefreshRaAndRestartWorkerCallback): void;
+        public refreshRaAndRestartWorker(request: prb.lifecycle.IUuidQueryRequest): Promise<prb.WorkerStateUpdate>;
         public kickWorker(request: prb.lifecycle.IUuidQueryRequest, callback: prb.WalkieRpc.KickWorkerCallback): void;
         public kickWorker(request: prb.lifecycle.IUuidQueryRequest): Promise<prb.WorkerStateUpdate>;
         public getWorkerStatus(request: prb.lifecycle.IUuidQueryRequest, callback: prb.WalkieRpc.GetWorkerStatusCallback): void;
@@ -231,6 +233,8 @@ export namespace prb {
         type UpdateWorkerCallback = (error: (Error|null), response?: prb.lifecycle.WorkerList) => void;
 
         type RestartWorkerCallback = (error: (Error|null), response?: prb.WorkerStateUpdate) => void;
+
+        type RefreshRaAndRestartWorkerCallback = (error: (Error|null), response?: prb.WorkerStateUpdate) => void;
 
         type KickWorkerCallback = (error: (Error|null), response?: prb.WorkerStateUpdate) => void;
 

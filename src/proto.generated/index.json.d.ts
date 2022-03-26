@@ -205,6 +205,10 @@ declare const schema: {
               "requestType": "lifecycle.UuidQueryRequest",
               "responseType": "WorkerStateUpdate"
             },
+            "RefreshRaAndRestartWorker": {
+              "requestType": "lifecycle.UuidQueryRequest",
+              "responseType": "WorkerStateUpdate"
+            },
             "KickWorker": {
               "requestType": "lifecycle.UuidQueryRequest",
               "responseType": "WorkerStateUpdate"
