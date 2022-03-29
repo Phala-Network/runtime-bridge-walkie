@@ -63,6 +63,7 @@ message Pool {
   bool enabled = 5;
   bool deleted = 6;
   string real_phala_ss58 = 7;
+  bool sync_only = 8;
 }
 
 message Worker {
@@ -73,4 +74,5 @@ message Worker {
   bool enabled = 5;
   bool deleted = 6;
   string stake = 7; // BalanceOf in BN string
+  bool sync_only = 8;
 }

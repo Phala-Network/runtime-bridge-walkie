@@ -498,6 +498,10 @@ declare const schema: {
                 "realPhalaSs58": {
                   "type": "string",
                   "id": 7
+                },
+                "syncOnly": {
+                  "type": "bool",
+                  "id": 8
                 }
               }
             },
@@ -530,6 +534,10 @@ declare const schema: {
                 "stake": {
                   "type": "string",
                   "id": 7
+                },
+                "syncOnly": {
+                  "type": "bool",
+                  "id": 8
                 }
               }
             }

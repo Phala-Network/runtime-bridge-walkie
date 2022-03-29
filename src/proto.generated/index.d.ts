@@ -551,6 +551,7 @@ export namespace prb {
             enabled?: (boolean|null);
             deleted?: (boolean|null);
             realPhalaSs58?: (string|null);
+            syncOnly?: (boolean|null);
         }
 
         class Pool implements IPool {
@@ -562,6 +563,7 @@ export namespace prb {
             public enabled: boolean;
             public deleted: boolean;
             public realPhalaSs58: string;
+            public syncOnly: boolean;
             public static create(properties?: prb.db.IPool): prb.db.Pool;
             public static encode(m: prb.db.IPool, w?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: prb.db.IPool, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -581,6 +583,7 @@ export namespace prb {
             enabled?: (boolean|null);
             deleted?: (boolean|null);
             stake?: (string|null);
+            syncOnly?: (boolean|null);
         }
 
         class Worker implements IWorker {
@@ -592,6 +595,7 @@ export namespace prb {
             public enabled: boolean;
             public deleted: boolean;
             public stake: string;
+            public syncOnly: boolean;
             public static create(properties?: prb.db.IWorker): prb.db.Worker;
             public static encode(m: prb.db.IWorker, w?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: prb.db.IWorker, writer?: $protobuf.Writer): $protobuf.Writer;

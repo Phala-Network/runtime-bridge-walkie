@@ -498,6 +498,10 @@
                 "realPhalaSs58": {
                   "type": "string",
                   "id": 7
+                },
+                "syncOnly": {
+                  "type": "bool",
+                  "id": 8
                 }
               }
             },
@@ -530,6 +534,10 @@
                 "stake": {
                   "type": "string",
                   "id": 7
+                },
+                "syncOnly": {
+                  "type": "bool",
+                  "id": 8
                 }
               }
             }

@@ -1,5 +1,5 @@
 /*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
-import * as $protobuf from "protobufjs/minimal";
+import $protobuf from "protobufjs/minimal";
 
 const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
 
@@ -2856,6 +2856,7 @@ export const prb = $root.prb = (() => {
             Pool.prototype.enabled = false;
             Pool.prototype.deleted = false;
             Pool.prototype.realPhalaSs58 = "";
+            Pool.prototype.syncOnly = false;
 
             Pool.create = function create(properties) {
                 return new Pool(properties);
@@ -2878,6 +2879,8 @@ export const prb = $root.prb = (() => {
                     writer.uint32(48).bool(message.deleted);
                 if (message.realPhalaSs58 != null && Object.hasOwnProperty.call(message, "realPhalaSs58"))
                     writer.uint32(58).string(message.realPhalaSs58);
+                if (message.syncOnly != null && Object.hasOwnProperty.call(message, "syncOnly"))
+                    writer.uint32(64).bool(message.syncOnly);
                 return writer;
             };
 
@@ -2912,6 +2915,9 @@ export const prb = $root.prb = (() => {
                         break;
                     case 7:
                         message.realPhalaSs58 = reader.string();
+                        break;
+                    case 8:
+                        message.syncOnly = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2953,6 +2959,9 @@ export const prb = $root.prb = (() => {
                 if (message.realPhalaSs58 != null && message.hasOwnProperty("realPhalaSs58"))
                     if (!$util.isString(message.realPhalaSs58))
                         return "realPhalaSs58: string expected";
+                if (message.syncOnly != null && message.hasOwnProperty("syncOnly"))
+                    if (typeof message.syncOnly !== "boolean")
+                        return "syncOnly: boolean expected";
                 return null;
             };
 
@@ -2984,6 +2993,8 @@ export const prb = $root.prb = (() => {
                     message.deleted = Boolean(object.deleted);
                 if (object.realPhalaSs58 != null)
                     message.realPhalaSs58 = String(object.realPhalaSs58);
+                if (object.syncOnly != null)
+                    message.syncOnly = Boolean(object.syncOnly);
                 return message;
             };
 
@@ -3003,6 +3014,7 @@ export const prb = $root.prb = (() => {
                     object.enabled = false;
                     object.deleted = false;
                     object.realPhalaSs58 = "";
+                    object.syncOnly = false;
                 }
                 if (message.uuid != null && message.hasOwnProperty("uuid"))
                     object.uuid = message.uuid;
@@ -3021,6 +3033,8 @@ export const prb = $root.prb = (() => {
                     object.deleted = message.deleted;
                 if (message.realPhalaSs58 != null && message.hasOwnProperty("realPhalaSs58"))
                     object.realPhalaSs58 = message.realPhalaSs58;
+                if (message.syncOnly != null && message.hasOwnProperty("syncOnly"))
+                    object.syncOnly = message.syncOnly;
                 return object;
             };
 
@@ -3047,6 +3061,7 @@ export const prb = $root.prb = (() => {
             Worker.prototype.enabled = false;
             Worker.prototype.deleted = false;
             Worker.prototype.stake = "";
+            Worker.prototype.syncOnly = false;
 
             Worker.create = function create(properties) {
                 return new Worker(properties);
@@ -3069,6 +3084,8 @@ export const prb = $root.prb = (() => {
                     writer.uint32(48).bool(message.deleted);
                 if (message.stake != null && Object.hasOwnProperty.call(message, "stake"))
                     writer.uint32(58).string(message.stake);
+                if (message.syncOnly != null && Object.hasOwnProperty.call(message, "syncOnly"))
+                    writer.uint32(64).bool(message.syncOnly);
                 return writer;
             };
 
@@ -3103,6 +3120,9 @@ export const prb = $root.prb = (() => {
                         break;
                     case 7:
                         message.stake = reader.string();
+                        break;
+                    case 8:
+                        message.syncOnly = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3142,6 +3162,9 @@ export const prb = $root.prb = (() => {
                 if (message.stake != null && message.hasOwnProperty("stake"))
                     if (!$util.isString(message.stake))
                         return "stake: string expected";
+                if (message.syncOnly != null && message.hasOwnProperty("syncOnly"))
+                    if (typeof message.syncOnly !== "boolean")
+                        return "syncOnly: boolean expected";
                 return null;
             };
 
@@ -3170,6 +3193,8 @@ export const prb = $root.prb = (() => {
                     message.deleted = Boolean(object.deleted);
                 if (object.stake != null)
                     message.stake = String(object.stake);
+                if (object.syncOnly != null)
+                    message.syncOnly = Boolean(object.syncOnly);
                 return message;
             };
 
@@ -3189,6 +3214,7 @@ export const prb = $root.prb = (() => {
                     object.enabled = false;
                     object.deleted = false;
                     object.stake = "";
+                    object.syncOnly = false;
                 }
                 if (message.uuid != null && message.hasOwnProperty("uuid"))
                     object.uuid = message.uuid;
@@ -3207,6 +3233,8 @@ export const prb = $root.prb = (() => {
                     object.deleted = message.deleted;
                 if (message.stake != null && message.hasOwnProperty("stake"))
                     object.stake = message.stake;
+                if (message.syncOnly != null && message.hasOwnProperty("syncOnly"))
+                    object.syncOnly = message.syncOnly;
                 return object;
             };
 
