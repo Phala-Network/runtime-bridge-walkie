@@ -34,6 +34,7 @@ export type CreatePtpNodeProps<R extends prb.WalkieRoles> = {
   bridgeIdentity: PtpBridgeIdentity<R>
   listenAddresses: string[]
   bootstrapAddresses: string[]
+  disableMdnsDiscovery?: boolean
   enableEncryption?: boolean
   overrides?: Partial<libp2p.Libp2pOptions & libp2p.CreateOptions> | null
 }
@@ -90,7 +91,7 @@ export const createPtpNode = async <R extends prb.WalkieRoles>(
           : { enabled: false },
         mdns: {
           interval: 20e3,
-          enabled: true,
+          enabled: !props.disableMdnsDiscovery,
         },
         dht: {
           enabled: true,
