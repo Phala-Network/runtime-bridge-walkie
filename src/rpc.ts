@@ -87,6 +87,8 @@ export const warpRpcRequester = <R extends prb.WalkieRoles>(
     let error: RpcResponse<T>['error']
     let data: RpcResponse<T>['data']
 
+    let instantConnection: Connection
+
     try {
       const requestType = pbRoot.lookupType(rpcMethods[method].requestType)
 
@@ -100,9 +102,19 @@ export const warpRpcRequester = <R extends prb.WalkieRoles>(
       ).finish()
 
       const { node } = options
-      const { stream } = await ((target as Connection).newStream
-        ? (target as Connection).newStream('/pb')
-        : node.dialProtocol(target as PeerId | string | Multiaddr, '/pb'))
+
+      let connection: Connection
+
+      if ((target as Connection).newStream) {
+        connection = target as Connection
+      } else {
+        connection = await node.dialer.connectToPeer(
+          target as PeerId | string | Multiaddr
+        )
+        instantConnection = connection
+      }
+
+      const { stream } = await connection.newStream('/pb')
 
       const responseBuffer = (await pipe(
         intoChunks(Buffer.from(encodedRequest), CHUNK_SIZE),
@@ -126,6 +138,10 @@ export const warpRpcRequester = <R extends prb.WalkieRoles>(
       error = e
       hasError = true
       logger.error(e)
+    } finally {
+      instantConnection?.close().catch((e) => {
+        logger.warn({ target }, 'Error while closing dial connection.', e)
+      })
     }
     return {
       data,

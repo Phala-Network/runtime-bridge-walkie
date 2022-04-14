@@ -75,7 +75,7 @@ export const createPeerManager = (
   node.connectionManager.on('peer:connect', (connection: Connection) => {
     const peerId = connection.remotePeer
     const readablePeerId = peerId.toB58String()
-    if (peers[readablePeerId]?.isConnOpen || peerPendingList[readablePeerId]) {
+    if (peers[readablePeerId] || peerPendingList[readablePeerId]) {
       return
     }
     if (connection.stat.direction === 'inbound') {
@@ -83,17 +83,25 @@ export const createPeerManager = (
     }
     peerPendingList[readablePeerId] = true
     logger.debug(
-      `Established ${connection.stat.direction} connection to ${readablePeerId}, trying handshake...`,
       {
         remoteAddr: connection.remoteAddr.toString(),
-      }
+      },
+      `Bonjour ${readablePeerId}, let's handshake now.`
     )
     handshakeQueue
       .add(async () => {
         const isConnOpen = () => (connection.stat.status as unknown) === 'OPEN'
         const dial: WalkiePeerRequester = async (method, _request) => {
           const currConn = await node.dialer.connectToPeer(peerId)
-          return request(currConn, method, _request)
+          const res = await request(currConn, method, _request)
+          currConn?.close().catch((e) => {
+            logger.warn(
+              { readablePeerId },
+              'Error while closing dial connection.',
+              e
+            )
+          })
+          return res
         }
 
         const peer = node.peerStore.get(peerId)
@@ -122,6 +130,7 @@ export const createPeerManager = (
       })
       .catch((e) => {
         logger.debug(`Failed to handshake with peer ${readablePeerId}`, e)
+        delete peers[readablePeerId]
       })
       .finally(() => {
         delete peerPendingList[readablePeerId]
