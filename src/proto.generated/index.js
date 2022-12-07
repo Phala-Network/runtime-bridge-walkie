@@ -4309,8 +4309,8 @@ export const prb = $root.prb = (() => {
         WorkerState.prototype.worker = null;
         WorkerState.prototype.publicKey = "";
         WorkerState.prototype.lastMessage = "";
-        WorkerState.prototype.minerInfoJson = "";
-        WorkerState.prototype.minerAccountId = "";
+        WorkerState.prototype.workerInfoJson = "";
+        WorkerState.prototype.workerAccountId = "";
 
         WorkerState.create = function create(properties) {
             return new WorkerState(properties);
@@ -4335,10 +4335,10 @@ export const prb = $root.prb = (() => {
                 writer.uint32(66).string(message.publicKey);
             if (message.lastMessage != null && Object.hasOwnProperty.call(message, "lastMessage"))
                 writer.uint32(74).string(message.lastMessage);
-            if (message.minerInfoJson != null && Object.hasOwnProperty.call(message, "minerInfoJson"))
-                writer.uint32(82).string(message.minerInfoJson);
-            if (message.minerAccountId != null && Object.hasOwnProperty.call(message, "minerAccountId"))
-                writer.uint32(90).string(message.minerAccountId);
+            if (message.workerInfoJson != null && Object.hasOwnProperty.call(message, "workerInfoJson"))
+                writer.uint32(82).string(message.workerInfoJson);
+            if (message.workerAccountId != null && Object.hasOwnProperty.call(message, "workerAccountId"))
+                writer.uint32(90).string(message.workerAccountId);
             return writer;
         };
 
@@ -4378,10 +4378,10 @@ export const prb = $root.prb = (() => {
                     message.lastMessage = reader.string();
                     break;
                 case 10:
-                    message.minerInfoJson = reader.string();
+                    message.workerInfoJson = reader.string();
                     break;
                 case 11:
-                    message.minerAccountId = reader.string();
+                    message.workerAccountId = reader.string();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -4437,12 +4437,12 @@ export const prb = $root.prb = (() => {
             if (message.lastMessage != null && message.hasOwnProperty("lastMessage"))
                 if (!$util.isString(message.lastMessage))
                     return "lastMessage: string expected";
-            if (message.minerInfoJson != null && message.hasOwnProperty("minerInfoJson"))
-                if (!$util.isString(message.minerInfoJson))
-                    return "minerInfoJson: string expected";
-            if (message.minerAccountId != null && message.hasOwnProperty("minerAccountId"))
-                if (!$util.isString(message.minerAccountId))
-                    return "minerAccountId: string expected";
+            if (message.workerInfoJson != null && message.hasOwnProperty("workerInfoJson"))
+                if (!$util.isString(message.workerInfoJson))
+                    return "workerInfoJson: string expected";
+            if (message.workerAccountId != null && message.hasOwnProperty("workerAccountId"))
+                if (!$util.isString(message.workerAccountId))
+                    return "workerAccountId: string expected";
             return null;
         };
 
@@ -4467,11 +4467,11 @@ export const prb = $root.prb = (() => {
             case 3:
                 message.status = 3;
                 break;
-            case "S_PRE_MINING":
+            case "S_PRE_ACTIVE":
             case 4:
                 message.status = 4;
                 break;
-            case "S_MINING":
+            case "S_ACTIVE":
             case 5:
                 message.status = 5;
                 break;
@@ -4501,10 +4501,10 @@ export const prb = $root.prb = (() => {
                 message.publicKey = String(object.publicKey);
             if (object.lastMessage != null)
                 message.lastMessage = String(object.lastMessage);
-            if (object.minerInfoJson != null)
-                message.minerInfoJson = String(object.minerInfoJson);
-            if (object.minerAccountId != null)
-                message.minerAccountId = String(object.minerAccountId);
+            if (object.workerInfoJson != null)
+                message.workerInfoJson = String(object.workerInfoJson);
+            if (object.workerAccountId != null)
+                message.workerAccountId = String(object.workerAccountId);
             return message;
         };
 
@@ -4521,8 +4521,8 @@ export const prb = $root.prb = (() => {
                 object.worker = null;
                 object.publicKey = "";
                 object.lastMessage = "";
-                object.minerInfoJson = "";
-                object.minerAccountId = "";
+                object.workerInfoJson = "";
+                object.workerAccountId = "";
             }
             if (message.status != null && message.hasOwnProperty("status"))
                 object.status = options.enums === String ? $root.prb.WorkerState.Status[message.status] : message.status;
@@ -4540,10 +4540,10 @@ export const prb = $root.prb = (() => {
                 object.publicKey = message.publicKey;
             if (message.lastMessage != null && message.hasOwnProperty("lastMessage"))
                 object.lastMessage = message.lastMessage;
-            if (message.minerInfoJson != null && message.hasOwnProperty("minerInfoJson"))
-                object.minerInfoJson = message.minerInfoJson;
-            if (message.minerAccountId != null && message.hasOwnProperty("minerAccountId"))
-                object.minerAccountId = message.minerAccountId;
+            if (message.workerInfoJson != null && message.hasOwnProperty("workerInfoJson"))
+                object.workerInfoJson = message.workerInfoJson;
+            if (message.workerAccountId != null && message.hasOwnProperty("workerAccountId"))
+                object.workerAccountId = message.workerAccountId;
             return object;
         };
 
@@ -4557,8 +4557,8 @@ export const prb = $root.prb = (() => {
             values[valuesById[1] = "S_STARTING"] = 1;
             values[valuesById[2] = "S_SYNCHING"] = 2;
             values[valuesById[3] = "S_SYNCHED"] = 3;
-            values[valuesById[4] = "S_PRE_MINING"] = 4;
-            values[valuesById[5] = "S_MINING"] = 5;
+            values[valuesById[4] = "S_PRE_ACTIVE"] = 4;
+            values[valuesById[5] = "S_ACTIVE"] = 5;
             values[valuesById[6] = "S_KICKED"] = 6;
             values[valuesById[7] = "S_ERROR"] = 7;
             return values;

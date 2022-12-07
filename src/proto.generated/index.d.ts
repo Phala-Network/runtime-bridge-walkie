@@ -800,8 +800,8 @@ export namespace prb {
         worker?: (prb.db.IWorker|null);
         publicKey?: (string|null);
         lastMessage?: (string|null);
-        minerInfoJson?: (string|null);
-        minerAccountId?: (string|null);
+        workerInfoJson?: (string|null);
+        workerAccountId?: (string|null);
     }
 
     class WorkerState implements IWorkerState {
@@ -814,8 +814,8 @@ export namespace prb {
         public worker?: (prb.db.IWorker|null);
         public publicKey: string;
         public lastMessage: string;
-        public minerInfoJson: string;
-        public minerAccountId: string;
+        public workerInfoJson: string;
+        public workerAccountId: string;
         public static create(properties?: prb.IWorkerState): prb.WorkerState;
         public static encode(m: prb.IWorkerState, w?: $protobuf.Writer): $protobuf.Writer;
         public static encodeDelimited(message: prb.IWorkerState, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -834,8 +834,8 @@ export namespace prb {
             S_STARTING = 1,
             S_SYNCHING = 2,
             S_SYNCHED = 3,
-            S_PRE_MINING = 4,
-            S_MINING = 5,
+            S_PRE_ACTIVE = 4,
+            S_ACTIVE = 5,
             S_KICKED = 6,
             S_ERROR = 7
         }
