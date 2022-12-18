@@ -800,7 +800,7 @@ export namespace prb {
         worker?: (prb.db.IWorker|null);
         publicKey?: (string|null);
         lastMessage?: (string|null);
-        workerInfoJson?: (string|null);
+        sessionInfoJson?: (string|null);
         workerAccountId?: (string|null);
     }
 
@@ -814,7 +814,7 @@ export namespace prb {
         public worker?: (prb.db.IWorker|null);
         public publicKey: string;
         public lastMessage: string;
-        public workerInfoJson: string;
+        public sessionInfoJson: string;
         public workerAccountId: string;
         public static create(properties?: prb.IWorkerState): prb.WorkerState;
         public static encode(m: prb.IWorkerState, w?: $protobuf.Writer): $protobuf.Writer;

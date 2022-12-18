@@ -23,7 +23,7 @@ message WorkerState {
   db.Worker worker = 6;
   string public_key = 8;
   string last_message = 9;
-  string worker_info_json = 10;
+  string session_info_json = 10;
   string worker_account_id = 11;
 }
 

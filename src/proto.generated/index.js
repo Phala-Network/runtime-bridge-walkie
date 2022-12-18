@@ -4309,7 +4309,7 @@ export const prb = $root.prb = (() => {
         WorkerState.prototype.worker = null;
         WorkerState.prototype.publicKey = "";
         WorkerState.prototype.lastMessage = "";
-        WorkerState.prototype.workerInfoJson = "";
+        WorkerState.prototype.sessionInfoJson = "";
         WorkerState.prototype.workerAccountId = "";
 
         WorkerState.create = function create(properties) {
@@ -4335,8 +4335,8 @@ export const prb = $root.prb = (() => {
                 writer.uint32(66).string(message.publicKey);
             if (message.lastMessage != null && Object.hasOwnProperty.call(message, "lastMessage"))
                 writer.uint32(74).string(message.lastMessage);
-            if (message.workerInfoJson != null && Object.hasOwnProperty.call(message, "workerInfoJson"))
-                writer.uint32(82).string(message.workerInfoJson);
+            if (message.sessionInfoJson != null && Object.hasOwnProperty.call(message, "sessionInfoJson"))
+                writer.uint32(82).string(message.sessionInfoJson);
             if (message.workerAccountId != null && Object.hasOwnProperty.call(message, "workerAccountId"))
                 writer.uint32(90).string(message.workerAccountId);
             return writer;
@@ -4378,7 +4378,7 @@ export const prb = $root.prb = (() => {
                     message.lastMessage = reader.string();
                     break;
                 case 10:
-                    message.workerInfoJson = reader.string();
+                    message.sessionInfoJson = reader.string();
                     break;
                 case 11:
                     message.workerAccountId = reader.string();
@@ -4437,9 +4437,9 @@ export const prb = $root.prb = (() => {
             if (message.lastMessage != null && message.hasOwnProperty("lastMessage"))
                 if (!$util.isString(message.lastMessage))
                     return "lastMessage: string expected";
-            if (message.workerInfoJson != null && message.hasOwnProperty("workerInfoJson"))
-                if (!$util.isString(message.workerInfoJson))
-                    return "workerInfoJson: string expected";
+            if (message.sessionInfoJson != null && message.hasOwnProperty("sessionInfoJson"))
+                if (!$util.isString(message.sessionInfoJson))
+                    return "sessionInfoJson: string expected";
             if (message.workerAccountId != null && message.hasOwnProperty("workerAccountId"))
                 if (!$util.isString(message.workerAccountId))
                     return "workerAccountId: string expected";
@@ -4501,8 +4501,8 @@ export const prb = $root.prb = (() => {
                 message.publicKey = String(object.publicKey);
             if (object.lastMessage != null)
                 message.lastMessage = String(object.lastMessage);
-            if (object.workerInfoJson != null)
-                message.workerInfoJson = String(object.workerInfoJson);
+            if (object.sessionInfoJson != null)
+                message.sessionInfoJson = String(object.sessionInfoJson);
             if (object.workerAccountId != null)
                 message.workerAccountId = String(object.workerAccountId);
             return message;
@@ -4521,7 +4521,7 @@ export const prb = $root.prb = (() => {
                 object.worker = null;
                 object.publicKey = "";
                 object.lastMessage = "";
-                object.workerInfoJson = "";
+                object.sessionInfoJson = "";
                 object.workerAccountId = "";
             }
             if (message.status != null && message.hasOwnProperty("status"))
@@ -4540,8 +4540,8 @@ export const prb = $root.prb = (() => {
                 object.publicKey = message.publicKey;
             if (message.lastMessage != null && message.hasOwnProperty("lastMessage"))
                 object.lastMessage = message.lastMessage;
-            if (message.workerInfoJson != null && message.hasOwnProperty("workerInfoJson"))
-                object.workerInfoJson = message.workerInfoJson;
+            if (message.sessionInfoJson != null && message.hasOwnProperty("sessionInfoJson"))
+                object.sessionInfoJson = message.sessionInfoJson;
             if (message.workerAccountId != null && message.hasOwnProperty("workerAccountId"))
                 object.workerAccountId = message.workerAccountId;
             return object;

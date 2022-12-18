@@ -735,7 +735,7 @@ declare const schema: {
               "type": "string",
               "id": 9
             },
-            "workerInfoJson": {
+            "sessionInfoJson": {
               "type": "string",
               "id": 10
             },
